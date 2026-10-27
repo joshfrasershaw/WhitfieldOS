@@ -13,7 +13,7 @@ test('every departmental route renders without console errors or page overflow',
     await expect(
       page.getByRole('heading', {
         level: 1,
-        name: m.id ? m.title : 'Command Centre',
+        name: m.id ? m.title : 'Dashboard',
         exact: true,
       }),
     ).toBeVisible()
@@ -100,7 +100,7 @@ test('purpose-specific controls work while unconnected state stays honest', asyn
   await expect(
     page.getByRole('heading', { name: 'This page is off the map.' }),
   ).toBeVisible()
-  await page.getByRole('link', { name: 'Return to Command Centre' }).click()
+  await page.getByRole('link', { name: 'Return to Dashboard' }).click()
   await expect(page).toHaveURL('/')
 })
 test('dashboard is an honest complete empty shell', async ({ page }) => {

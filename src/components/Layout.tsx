@@ -70,7 +70,7 @@ export default function Layout() {
     const title = modules.find(
       (m) => location.pathname === (m.id ? `/${m.id}` : '/'),
     )?.title
-    document.title = `WhitfieldOS · ${title === 'Overview' ? 'Command Centre' : title || 'Page not found'}`
+    document.title = `WhitfieldOS · ${title === 'Overview' ? 'Dashboard' : title || 'Page not found'}`
   }, [location.pathname])
   useEffect(() => {
     if (dialog) {
@@ -340,7 +340,7 @@ export default function Layout() {
               connected. There are no live alerts in this foundation release.
             </p>
             <Link to="/alerts" className="button secondary" onClick={closeNav}>
-              Explore Management Alerts <ArrowRight size={15} />
+              View Alerts <ArrowRight size={15} />
             </Link>
           </div>
         ) : (

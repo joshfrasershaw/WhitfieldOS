@@ -2,7 +2,7 @@
 
 The business control tower for **Whitfield Plumbing, Heating & Cooling**.
 
-V1 is a complete, responsive visual application foundation: a Command Centre and departmental workspaces including working offline tools. It opens directly into the Command Centre. All business areas are navigable; every metric and data workspace is an honest empty state.
+V1 is a complete, responsive visual application foundation: a Dashboard and departmental workspaces including working offline tools. It opens directly into the Dashboard. All business areas are navigable; every metric and data workspace is an honest empty state.
 
 **No live business data, integrations, authentication, AI, backend or database is included.** UI controls navigate, search pages, switch views and explore the empty workspace; they do not create operational records or change external systems.
 
@@ -40,7 +40,7 @@ If Chromium is already installed, use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/
 
 - Graphite sidebar with seven collapsible navigation groups, active states, desktop collapse and a mobile drawer.
 - Shared design tokens, responsive white-surface workspaces, consistent empty states and Lucide icons.
-- Command Centre: six KPI cards, jobs, location preview, management attention, capacity, commercial pipeline, marketing, renewals, activity, quick access and intelligence entry point.
+- Dashboard: seven KPI cards, jobs, location preview, management attention, capacity, commercial pipeline, marketing, renewals, activity, quick access and assistant entry point.
 - Purpose-specific diaries, triage flow, stock and record tables, pipeline boards, analytics frames, content calendar, directories and documents workspace.
 - Searchable integration directory for nine planned system categories, all explicitly not connected.
 - Global page search (button or Ctrl/Cmd+K), notification/profile dialogs, keyboard navigation, focus treatment, a skip link, not-found page and render error boundary.
@@ -52,7 +52,7 @@ If Chromium is already installed, use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/
 src/
   components/         Shared application layout, panels, headers and empty states
   config/             Central typed navigation and future role metadata
-  features/           Command Centre and purpose-specific module workspaces
+  features/           Dashboard and purpose-specific module workspaces
   styles.css          Tailwind integration, design tokens and responsive styling
   main.tsx            Router, app entry point and render error boundary
 public/               Typographic favicon
@@ -97,6 +97,6 @@ The displayed date uses Europe/London. Calendar views use the browser's local ca
 - **Route Planner** (Operations): import your own WGS84 postcode/latitude/longitude CSV in the browser, set fixed start and end postcodes, add jobs, optimise an approximate straight-line sequence with nearest-neighbour/2-opt and open an external Google Maps route. No routing API, subscriptions, network postcode lookups, live road times or automatic ServiceM8 diary import. Imported data is never saved.
 - **Product & Warranty Registration** (Operations): gas boilers, oil boilers, air-conditioning units and hot-water cylinders. Add verified manufacturer HTTPS registration links; open those websites externally. Links save **only in this browser**, with no warranty tracking.
 - **Call Desk & Customer Handover** (Customers & Commercial): manually capture a caller's number, customer details and enquiry, copy a booking brief, open WhatsApp and open a separately supplied ServiceM8 profile URL. The fields are memory-only. **No automatic caller recognition or customer matching** is implemented, and you must not use this unauthenticated public prototype to store real customer records.
-- Command Centre now contains both **Jobs Today** and **Expected Revenue Today** as distinct, unconnected KPIs.
+- Dashboard now contains both **Jobs Today** and **Expected Revenue Today** as distinct, unconnected KPIs.
 
 See [delivery roadmap and security gates](docs/delivery-roadmap.md) for the remaining phases.

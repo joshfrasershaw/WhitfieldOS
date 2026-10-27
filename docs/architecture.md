@@ -4,7 +4,7 @@
 
 React and TypeScript run as a static Vite application. React Router owns client-side navigation. Tailwind CSS v4 is integrated through its Vite plugin; central CSS tokens and component classes keep the intentionally restrained visual system consistent. System sans-serif fonts avoid an external font request and provide an Inter-like professional fallback. The wordmark and favicon are typographic product identifiers, not official company branding assets.
 
-`src/config/navigation.ts` is the source of truth for all 32 routes, navigation labels, icons, descriptions, workspace variants and future role visibility. The Command Centre is the index route; other entries map to a typed module workspace. Seven sidebar groups match the requested business hierarchy.
+`src/config/navigation.ts` is the source of truth for all 32 routes, navigation labels, icons, descriptions, workspace variants and future role visibility. The Dashboard is the index route; other entries map to a typed module workspace. Seven sidebar groups match the requested business hierarchy.
 
 Shared `Panel`, `Empty`, `PageHeader` and `ConnectionNote` components establish layout and data-availability semantics. The workspace variants intentionally differ: scheduling grids, triage flow, table workspaces, stage boards, analytics frames, month calendar, tabbed directories, document categories, assistant workspace, settings and integrations.
 

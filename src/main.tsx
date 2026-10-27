@@ -56,11 +56,11 @@ createRoot(document.getElementById('root')!).render(
                   <p className="eyebrow">404 · PAGE NOT FOUND</p>
                   <h1>This page is off the map.</h1>
                   <p>
-                    Return to your Command Centre or use workspace search to
+                    Return to your Dashboard or use workspace search to
                     find your way.
                   </p>
                   <Link className="button" to="/">
-                    Return to Command Centre
+                    Return to Dashboard
                   </Link>
                 </section>
               }

@@ -78,7 +78,7 @@ function m(
 }
 export const groups = [
   {
-    title: 'COMMAND CENTRE',
+    title: 'DASHBOARD',
     items: [
       m(
         '',
@@ -169,8 +169,8 @@ export const groups = [
       ),
       m(
         'customers',
-        'Customer Intelligence',
-        'A joined-up view of relationships, properties and service history.',
+        'Customers',
+        'Customer contact details, properties and job history from ServiceM8, when connected.',
         Users,
         'directory',
         ['Customers', 'Properties', 'Service history'],
@@ -334,11 +334,11 @@ export const groups = [
     ],
   },
   {
-    title: 'INTELLIGENCE',
+    title: 'INSIGHTS & REPORTING',
     items: [
       m(
         'alerts',
-        'Management Alerts',
+        'Alerts',
         'The matters that need your attention, in one considered view.',
         Bell,
         'table',
@@ -346,15 +346,15 @@ export const groups = [
       ),
       m(
         'reporting',
-        'Reporting & Analytics',
-        'Turn connected information into useful management insight.',
+        'Reports',
+        'See key figures and performance reports across the business.',
         ChartColumn,
         'analytics',
         ['Business performance', 'Operational reporting', 'Custom reports'],
       ),
       m(
         'forecasting',
-        'Forecasting',
+        'Forecasts',
         'Look ahead at workload, capacity and commercial opportunity.',
         TrendingUp,
         'analytics',

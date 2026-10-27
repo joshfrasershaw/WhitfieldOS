@@ -70,7 +70,7 @@ export default function Dashboard() {
   return (
     <>
       <PageHeader
-        title="Command Centre"
+        title="Dashboard"
         description="Your business. One clear picture."
         kicker="THE WHITFIELD WORKSPACE"
       >
@@ -373,11 +373,11 @@ export default function Dashboard() {
         <section className="intelligence-panel">
           <div className="intelligence-heading">
             <span>
-              <Sparkles size={18} /> WHITFIELDOS INTELLIGENCE
+              <Sparkles size={18} /> BUSINESS INSIGHTS
             </span>
             <span className="not-connected">Not connected</span>
           </div>
-          <h2>A little more perspective.</h2>
+          <h2>Ask WhitfieldOS</h2>
           <p>
             A future assistant to help you ask better questions, see connections
             and decide what comes next.
