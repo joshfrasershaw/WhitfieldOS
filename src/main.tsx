@@ -7,6 +7,7 @@ import Dashboard from './features/Dashboard'
 import Workspace from './features/Workspace'
 import { modules } from './config/navigation'
 import './styles.css'
+import './feature-styles.css'
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }

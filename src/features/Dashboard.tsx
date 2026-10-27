@@ -17,6 +17,8 @@ import {
   Plus,
   Plug,
   Check,
+  Route,
+  ClipboardCheck,
 } from 'lucide-react'
 import { Panel, Empty, PageHeader } from '../components/ui'
 const kpis = [
@@ -24,6 +26,12 @@ const kpis = [
     title: 'Active Jobs Today',
     detail: 'Jobs scheduled for today',
     icon: Wrench,
+    to: 'jobs',
+  },
+  {
+    title: 'Expected Revenue Today',
+    detail: 'Value of jobs scheduled for today',
+    icon: Wallet,
     to: 'jobs',
   },
   {
@@ -323,6 +331,24 @@ export default function Dashboard() {
                 detail: 'Commercial workspace',
                 to: 'opportunities',
                 icon: Plus,
+              },
+              {
+                label: 'Plan an engineer route',
+                detail: 'Offline route planner',
+                to: 'route-planner',
+                icon: Route,
+              },
+              {
+                label: 'Register an installation',
+                detail: 'Manufacturer warranty links',
+                to: 'warranty-registration',
+                icon: ClipboardCheck,
+              },
+              {
+                label: 'Open call desk',
+                detail: 'Customer enquiry handover',
+                to: 'call-desk',
+                icon: PhoneIncoming,
               },
               {
                 label: 'Connect your systems',

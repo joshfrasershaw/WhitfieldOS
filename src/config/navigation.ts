@@ -28,12 +28,18 @@ import {
   Sparkles,
   Settings,
   Plug,
+  Route,
+  PhoneIncoming,
+  ClipboardCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 export type Role =
   'owner' | 'operations' | 'administration' | 'engineer' | 'marketing'
 export type Workspace =
   | 'schedule'
+  | 'route'
+  | 'registration'
+  | 'calls'
   | 'triage'
   | 'table'
   | 'pipeline'
@@ -96,6 +102,14 @@ export const groups = [
         ['Unallocated', 'Engineer allocation', 'Daily diary'],
       ),
       m(
+        'route-planner',
+        'Route Planner',
+        'Optimise an engineer run using offline postcode coordinates, with no paid routing API.',
+        Route,
+        'route',
+        ['Starting point', 'Job postcodes', 'Optimised run'],
+      ),
+      m(
         'triage',
         'Triage & Diagnostics',
         'Turn the first conversation into a clear plan of action.',
@@ -120,6 +134,14 @@ export const groups = [
         ['Part / item', 'Category', 'Stock level', 'Reorder point', 'Supplier'],
       ),
       m(
+        'warranty-registration',
+        'Product & Warranty Registration',
+        'Open manufacturer registration websites for gas, oil, air conditioning and cylinders.',
+        ClipboardCheck,
+        'registration',
+        ['Gas boilers', 'Oil boilers', 'Air conditioning', 'Hot water cylinders'],
+      ),
+      m(
         'service-planning',
         'Service Planning',
         'Plan preventative work and make room for what comes next.',
@@ -132,6 +154,14 @@ export const groups = [
   {
     title: 'CUSTOMERS & COMMERCIAL',
     items: [
+      m(
+        'call-desk',
+        'Call Desk & Customer Handover',
+        'Capture an enquiry and open the existing booking and communications systems.',
+        PhoneIncoming,
+        'calls',
+        ['Caller', 'Enquiry', 'Handover'],
+      ),
       m(
         'customers',
         'Customer Intelligence',

@@ -19,6 +19,9 @@ import {
   Cable,
 } from 'lucide-react'
 import type { Module } from '../config/navigation'
+import RoutePlanner from './RoutePlanner'
+import WarrantyRegistration from './WarrantyRegistration'
+import CallDesk from './CallDesk'
 import { PageHeader, Panel, Empty, ConnectionNote } from '../components/ui'
 const integrations = [
   {
@@ -641,6 +644,9 @@ function Settings() {
   )
 }
 export default function Workspace({ module }: { module: Module }) {
+  if (module.type === 'route') return <RoutePlanner />
+  if (module.type === 'registration') return <WarrantyRegistration />
+  if (module.type === 'calls') return <CallDesk />
   return (
     <>
       <PageHeader

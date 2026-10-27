@@ -2,7 +2,7 @@
 
 The business control tower for **Whitfield Plumbing, Heating & Cooling**.
 
-V1 is a complete, responsive visual application foundation: a Command Centre and 28 departmental workspaces. It opens directly into the Command Centre. All business areas are navigable; every metric and data workspace is an honest empty state.
+V1 is a complete, responsive visual application foundation: a Command Centre and departmental workspaces including working offline tools. It opens directly into the Command Centre. All business areas are navigable; every metric and data workspace is an honest empty state.
 
 **No live business data, integrations, authentication, AI, backend or database is included.** UI controls navigate, search pages, switch views and explore the empty workspace; they do not create operational records or change external systems.
 
@@ -91,3 +91,12 @@ No deployment has been performed as part of V1. A production access-control deci
 Nothing connects to ServiceM8, Xero, Google or any other provider. There are no customer/employee records, financial transactions, generated AI answers, or pretend live alerts. The location view is an abstract labelled preview, not a live map. Dashes mean unavailable data, not zero. Calendar navigation is local and does not schedule jobs. Settings describe planned capabilities rather than offering save buttons that cannot save.
 
 The displayed date uses Europe/London. Calendar views use the browser's local calendar. Search indexes application pages only. View selections and navigation collapse state are session UI state and are not persisted. Future role metadata is not a security boundary.
+
+## Phase 1.1: Offline management tools
+
+- **Route Planner** (Operations): import your own WGS84 postcode/latitude/longitude CSV in the browser, set fixed start and end postcodes, add jobs, optimise an approximate straight-line sequence with nearest-neighbour/2-opt and open an external Google Maps route. No routing API, subscriptions, network postcode lookups, live road times or automatic ServiceM8 diary import. Imported data is never saved.
+- **Product & Warranty Registration** (Operations): gas boilers, oil boilers, air-conditioning units and hot-water cylinders. Add verified manufacturer HTTPS registration links; open those websites externally. Links save **only in this browser**, with no warranty tracking.
+- **Call Desk & Customer Handover** (Customers & Commercial): manually capture a caller's number, customer details and enquiry, copy a booking brief, open WhatsApp and open a separately supplied ServiceM8 profile URL. The fields are memory-only. **No automatic caller recognition or customer matching** is implemented, and you must not use this unauthenticated public prototype to store real customer records.
+- Command Centre now contains both **Jobs Today** and **Expected Revenue Today** as distinct, unconnected KPIs.
+
+See [delivery roadmap and security gates](docs/delivery-roadmap.md) for the remaining phases.

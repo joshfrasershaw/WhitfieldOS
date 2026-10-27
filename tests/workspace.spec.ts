@@ -105,9 +105,9 @@ test('purpose-specific controls work while unconnected state stays honest', asyn
 })
 test('dashboard is an honest complete empty shell', async ({ page }) => {
   await page.goto('/')
-  await expect(page.locator('.kpi')).toHaveCount(6)
+  await expect(page.locator('.kpi')).toHaveCount(7)
   await expect(page.locator('.kpi-value')).toHaveText(
-    Array(6).fill('—Not connected'),
+    Array(7).fill('—Not connected'),
   )
   for (const name of [
     'Today’s Jobs',

@@ -47,3 +47,13 @@ Global search is a local page directory, not a business-record search or an AI e
 ## Deployment
 
 Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. V1 has no Worker application code, paid services, database or server runtime dependency. Wrangler is a development/deployment tool only. Decide authentication and data protection before connecting sensitive business information.
+
+## No-cost offline tools (phase 1.1)
+
+The browser-only route planner uses a user-imported WGS84 postcode CSV for coordinates, calculates haversine distances and uses nearest-neighbour + 2-opt to suggest an order. It does **not** know roads or traffic. No coordinates, job lists or caller details are uploaded or persisted. Google's publicly supported Maps URLs provide an external hand-off only and are not a Maps API integration. Source licensing and dataset maintenance are the user's responsibility.
+
+The manufacturer registration hub stores **URLs only** in local browser storage; links are not shared across browsers or audited. Never include customer details or service credentials in manufacturer URLs.
+
+The Call Desk is a manually entered, ephemeral proof of concept. A real caller pop-up requires an Android call-screening/identification companion (subject to Android permissions, role requirements and device behaviour), a trusted paired channel and a backend that queries ServiceM8 with credentials stored server-side. Browser code cannot read an incoming mobile call. ServiceM8 customer profile URLs must be obtained from the real provider account, not guessed.
+
+Do not persist personal data on a shared, unauthenticated static site. Live caller recognition and customer records remain blocked pending authentication, tenancy and data-protection decisions. Never put ServiceM8 tokens into Vite browser environment variables.
