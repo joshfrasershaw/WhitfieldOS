@@ -2,21 +2,21 @@
 
 ## Delivery status
 
-| Area | Present | Real-data phase |
-| --- | --- | --- |
-| Management Command Centre | Visual shell, Jobs Today and Expected Revenue Today empty KPIs | Read-only ServiceM8 job and price data, with job value semantics validated |
-| Dispatch diary / Triage / Inventory | Purpose-specific empty workspaces | Source integrations, business rules and workflows |
-| Route Planner | Working, offline coordinate CSV import and route ordering; Google Maps hand-off | Day-job import from ServiceM8, appointments, travel-time network if justified |
-| Product & Warranty Registration | Outbound registration directory, configurable per browser | Centrally managed verified manufacturer URLs; no tracking by request |
-| Call Desk | Manual ephemeral enquiry, WhatsApp hand-off and supplied ServiceM8 record URL | Secure caller ID feed and live customer lookup |
-| Sales, service renewals, finance, growth, people, intelligence | Consistent departmental shells | Read-only adapters and then carefully authorised write actions |
+| Area                                                           | Present                                                                         | Real-data phase                                                               |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Management Command Centre                                      | Visual shell, Jobs Today and Expected Revenue Today empty KPIs                  | Read-only ServiceM8 job and price data, with job value semantics validated    |
+| Dispatch diary / Triage / Inventory                            | Purpose-specific empty workspaces                                               | Source integrations, business rules and workflows                             |
+| Route Planner                                                  | Working, offline coordinate CSV import and route ordering; Google Maps hand-off | Day-job import from ServiceM8, appointments, travel-time network if justified |
+| Product & Warranty Registration                                | Outbound registration directory, configurable per browser                       | Centrally managed verified manufacturer URLs; no tracking by request          |
+| Call Desk                                                      | Manual ephemeral enquiry, WhatsApp hand-off and supplied ServiceM8 record URL   | Secure caller ID feed and live customer lookup                                |
+| Sales, service renewals, finance, growth, people, intelligence | Consistent departmental shells                                                  | Read-only adapters and then carefully authorised write actions                |
 
 ## Non-negotiable architecture
 
 1. ServiceM8 owns customers, jobs, quotes and scheduling; Xero owns financial transactions. Never introduce duplicate records needing manual upkeep.
 2. Central authentication, server-side authorisation and secure provider credential storage **before** syncing real customers or commercial data. This GitHub repository is public, and the current prototype has no sign-in. Never put keys or exports of customer data in the repository or Vite assets.
 3. Integrations should start read-only. Write-back, booking automation, sync conflict resolution, retries and audit logs require separate testing and authorisation.
-4. Show disconnected/unknown rather than zero or invented values. Distinguish *scheduled* revenue from *invoiced* revenue and gross from net/VAT.
+4. Show disconnected/unknown rather than zero or invented values. Distinguish _scheduled_ revenue from _invoiced_ revenue and gross from net/VAT.
 5. Maintain a no-new-recurring-spend target for prototypes, while recognising that hosting, ServiceM8 account features, data suppliers or future road-routing requirements may cost money. Do not promise a permanently free operating platform.
 
 ## Secure incoming caller identification: future proof of concept

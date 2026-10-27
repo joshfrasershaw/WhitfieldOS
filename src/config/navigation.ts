@@ -139,7 +139,12 @@ export const groups = [
         'Open manufacturer registration websites for gas, oil, air conditioning and cylinders.',
         ClipboardCheck,
         'registration',
-        ['Gas boilers', 'Oil boilers', 'Air conditioning', 'Hot water cylinders'],
+        [
+          'Gas boilers',
+          'Oil boilers',
+          'Air conditioning',
+          'Hot water cylinders',
+        ],
       ),
       m(
         'service-planning',
