@@ -55,10 +55,7 @@ createRoot(document.getElementById('root')!).render(
                 <section className="panel not-found">
                   <p className="eyebrow">404 · PAGE NOT FOUND</p>
                   <h1>This page is off the map.</h1>
-                  <p>
-                    Return to your Dashboard or use workspace search to
-                    find your way.
-                  </p>
+                  <p>Return to the Dashboard.</p>
                   <Link className="button" to="/">
                     Return to Dashboard
                   </Link>
