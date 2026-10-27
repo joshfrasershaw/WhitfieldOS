@@ -46,4 +46,4 @@ Global search is a local page directory, not a business-record search or an AI e
 
 ## Deployment
 
-Cloudflare Pages can serve `dist` as static assets. The wildcard redirect handles history routing. V1 has no Workers, paid services, database or deployment-specific runtime dependency. Decide authentication and data protection before connecting sensitive business information.
+Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. V1 has no Worker application code, paid services, database or server runtime dependency. Wrangler is a development/deployment tool only. Decide authentication and data protection before connecting sensitive business information.

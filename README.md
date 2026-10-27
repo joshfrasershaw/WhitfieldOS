@@ -44,7 +44,7 @@ If Chromium is already installed, use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/
 - Purpose-specific diaries, triage flow, stock and record tables, pipeline boards, analytics frames, content calendar, directories and documents workspace.
 - Searchable integration directory for nine planned system categories, all explicitly not connected.
 - Global page search (button or Ctrl/Cmd+K), notification/profile dialogs, keyboard navigation, focus treatment, a skip link, not-found page and render error boundary.
-- Cloudflare Pages SPA fallback and CI validation.
+- Cloudflare Workers static-asset configuration, Pages compatibility and CI validation.
 
 ## Architecture
 
@@ -55,11 +55,24 @@ src/
   features/           Command Centre and purpose-specific module workspaces
   styles.css          Tailwind integration, design tokens and responsive styling
   main.tsx            Router, app entry point and render error boundary
-public/               Typographic favicon and Cloudflare SPA redirect
- tests/               Cross-viewport browser and accessibility tests
+public/               Typographic favicon
+tests/                Cross-viewport browser and accessibility tests
 ```
 
 See [architecture and future integration points](docs/architecture.md) for extension guidance and design decisions.
+
+## Cloudflare Workers staging
+
+For a Git-connected Worker (the Cloudflare flow with a deploy command):
+
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
+- Environment variable: `NODE_VERSION=24`
+- Branch: `main`
+
+`wrangler.jsonc` serves `dist` as static assets with native single-page-application routing. No Worker application code, API credentials in the app, or Cloudflare Vite plugin is needed. Keep the project name `whitfieldos` to match the existing Worker. Cloudflare supplies a free `workers.dev` staging URL.
+
+Do not add a wildcard `/index.html` redirect: Workers rejects that rule as a redirect loop. The explicit Wrangler configuration also prevents automatic framework setup from rewriting the Vite project during deployment.
 
 ## Cloudflare Pages
 
@@ -69,7 +82,7 @@ This repository is suitable for a static Cloudflare Pages deployment:
 - Output directory: `dist`
 - Use Node 24 (or at least 22.12).
 - Root directory: repository root.
-- `public/_redirects` is copied into `dist` to support direct visits to departmental routes.
+- Pages provides its built-in SPA fallback because this app has no top-level `404.html`. No `_redirects` file is needed.
 
 No deployment has been performed as part of V1. A production access-control decision is required before introducing real internal business information; V1 intentionally has no authentication.
 
