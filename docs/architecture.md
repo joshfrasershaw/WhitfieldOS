@@ -1,0 +1,49 @@
+# Architecture and future development
+
+## Frontend foundation
+
+React and TypeScript run as a static Vite application. React Router owns client-side navigation. Tailwind CSS v4 is integrated through its Vite plugin; central CSS tokens and component classes keep the intentionally restrained visual system consistent. System sans-serif fonts avoid an external font request and provide an Inter-like professional fallback. The wordmark and favicon are typographic product identifiers, not official company branding assets.
+
+`src/config/navigation.ts` is the source of truth for all 29 routes, navigation labels, icons, descriptions, workspace variants and future role visibility. The Command Centre is the index route; other entries map to a typed module workspace. Seven sidebar groups match the requested business hierarchy.
+
+Shared `Panel`, `Empty`, `PageHeader` and `ConnectionNote` components establish layout and data-availability semantics. The workspace variants intentionally differ: scheduling grids, triage flow, table workspaces, stage boards, analytics frames, month calendar, tabbed directories, document categories, assistant workspace, settings and integrations.
+
+Presentation is separated from navigation configuration. Replace a module's visual variant with a dedicated feature component as real workflows develop; preserve shared primitives. Do not add API or provider concerns to the layout component.
+
+## Honest data states
+
+V1 has no data fetches. A dash means unavailable; it never implies a business count or currency value. Empty pages have explicit data-source context. No fake records, revenue, staff locations or operational events are seeded. The abstract location frame is labelled as a preview without live data.
+
+When introducing real data, model `loading`, `ready`, `empty`, `unconnected` and `error` states separately. Retain the existing neutral empty language and add retry/error states around actual requests. Avoid replacing unavailable information with synthetic figures.
+
+## Future integration boundaries
+
+Planned sources:
+
+| Source                    | Intended features                                     |
+| ------------------------- | ----------------------------------------------------- |
+| ServiceM8                 | Dispatch, jobs, engineers, customers, service history |
+| Xero                      | Finance summaries, invoices and receivables           |
+| Google Ads                | Campaign spend and conversions                        |
+| GA4                       | Website engagement and enquiry journeys               |
+| Search Console            | Organic queries and indexing                          |
+| Google Business Profile   | Local profile interactions                            |
+| Meta                      | Social publishing and channel performance             |
+| WordPress                 | Content and website workflows                         |
+| WhatsApp / communications | Conversation context                                  |
+
+Introduce typed domain adapters and feature-level data hooks behind these views. Provider authentication, token storage, webhooks, normalisation and authorisation must live in a secure server boundary selected in a future phase. Never ship provider secrets in Vite environment variables or browser bundles. The current directory is informational and performs no authentication or connection attempts.
+
+## Roles and authentication
+
+The navigation model includes owner, operations, administration, engineer and marketing roles. All modules are visible to all roles in V1. Future UI visibility can consume this metadata, but server-side authorisation must enforce access to real records. The current profile is a workspace placeholder, not a signed-in person. Authentication is deliberately absent.
+
+## Interaction and accessibility
+
+Semantic page headings, named icon controls, native dialogs, focus restoration, keyboard-operable tabs, reduced-motion support and a skip link support accessible navigation. The mobile drawer locks background interaction, traps keyboard focus and closes with Escape. Off-canvas navigation is hidden from keyboard and accessibility traversal when closed. Tables and scheduling grids scroll internally on narrow screens instead of expanding the page.
+
+Global search is a local page directory, not a business-record search or an AI endpoint. Assistant prompts are illustrative and the input is explicitly disabled. Settings communicate the foundation's capabilities without implying configuration persistence.
+
+## Deployment
+
+Cloudflare Pages can serve `dist` as static assets. The wildcard redirect handles history routing. V1 has no Workers, paid services, database or deployment-specific runtime dependency. Decide authentication and data protection before connecting sensitive business information.
