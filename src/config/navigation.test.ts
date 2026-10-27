@@ -3,7 +3,7 @@ import { groups, modules } from './navigation'
 describe('application navigation contract', () => {
   it('defines every requested business workspace with unique routes', () => {
     expect(groups).toHaveLength(7)
-    expect(modules).toHaveLength(29)
+    expect(modules).toHaveLength(32)
     expect(new Set(modules.map((m) => m.id)).size).toBe(modules.length)
     expect(modules[0].id).toBe('')
   })
