@@ -3,7 +3,7 @@ import {
   ArrowDown,
   ArrowUp,
   ExternalLink,
-  Map,
+  Map as MapIcon,
   Plus,
   Route,
   Trash2,
@@ -288,7 +288,7 @@ export default function RoutePlanner() {
           <Panel title="Optimised route">
             {!ordered ? (
               <div className="tool-empty">
-                <Map size={33} />
+                <MapIcon size={33} />
                 <h3>Your run, in the best available order</h3>
                 <p>
                   Load coordinates, set a start point and add your jobs. The
