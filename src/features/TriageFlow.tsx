@@ -166,12 +166,20 @@ function makeSteps(topic: Topic, inferredShowerType = ''): Step[] {
     })
     return base
   }
-  if (topic.id === 'electric-shower' || topic.id === 'rainfall-shower' || topic.id === 'mixer-shower') {
+  if (
+    topic.id === 'electric-shower' ||
+    topic.id === 'rainfall-shower' ||
+    topic.id === 'mixer-shower'
+  ) {
     if (inferredShowerType) {
       base.push({
         key: 'shower-type-confirm',
-        prompt: 'That appearance is only a clue. Can the customer confirm which type of shower they have?',
-        options: ['Yes, the selected type is confirmed', 'No / still unsure — request photos'],
+        prompt:
+          'That appearance is only a clue. Can the customer confirm which type of shower they have?',
+        options: [
+          'Yes, the selected type is confirmed',
+          'No / still unsure — request photos',
+        ],
       })
     }
     base.push({
@@ -321,39 +329,52 @@ function getDecision(
 } {
   if (topic.group === 'showers' && topic.id !== 'shower-pump') {
     const intent = answers['shower-intent']
-    if (topic.id === 'shower-unknown' || intent === 'Not sure yet' || intent === undefined) {
+    if (
+      topic.id === 'shower-unknown' ||
+      intent === 'Not sure yet' ||
+      intent === undefined
+    ) {
       return {
         kind: 'photos',
         title: 'Confirm shower type and request photographs',
-        detail: 'The shower type or intended work has not been confirmed. Request photos and refer the request for assessment. Do not quote an installation price.',
+        detail:
+          'The shower type or intended work has not been confirmed. Request photos and refer the request for assessment. Do not quote an installation price.',
       }
     }
     if (intent === 'Repair a fault / temperature problem') {
       return {
         kind: 'george',
         title: 'Shower fault — refer for assessment',
-        detail: 'The caller reports an existing shower fault. Record the symptoms and make/model, request close-up and wider photographs and have George review the work required. The installation price does not apply to fault investigation or repair.',
+        detail:
+          'The caller reports an existing shower fault. Record the symptoms and make/model, request close-up and wider photographs and have George review the work required. The installation price does not apply to fault investigation or repair.',
       }
     }
     if (intent === 'Install a shower where there is not one') {
       return {
         kind: 'quote',
         title: 'New shower installation — assess before quoting',
-        detail: 'This is not a like-for-like replacement. Confirm location, water/electrical provision, type and access with George before offering a price or appointment.',
+        detail:
+          'This is not a like-for-like replacement. Confirm location, water/electrical provision, type and access with George before offering a price or appointment.',
       }
     }
     if (topic.id === 'mixer-shower') {
       return {
         kind: 'photos',
         title: 'Mixer shower replacement — photos and quote review',
-        detail: 'The scripts do not provide a general fixed price for a mixer shower replacement. Obtain photographs and refer for a suitable quote.',
+        detail:
+          'The scripts do not provide a general fixed price for a mixer shower replacement. Obtain photographs and refer for a suitable quote.',
       }
     }
     if (intent === 'Replace the existing shower') {
       return {
         kind: 'fixed',
-        title: topic.id === 'electric-shower' ? 'Electric shower replacement enquiry' : 'Rainfall shower replacement enquiry',
-        detail: topic.message || 'Check suitability, current pricing and availability before offering a booking.',
+        title:
+          topic.id === 'electric-shower'
+            ? 'Electric shower replacement enquiry'
+            : 'Rainfall shower replacement enquiry',
+        detail:
+          topic.message ||
+          'Check suitability, current pricing and availability before offering a booking.',
         price: topic.price,
         note: 'Script price indication only. Confirm like-for-like suitability and the current approved price before quoting.',
       }
@@ -512,7 +533,10 @@ export default function TriageFlow() {
     if (next === 'boilers') setView('fuel')
     else setView('choose')
   }
-  function selectTopic(id: string, carriedAnswers: Record<string, string> = {}) {
+  function selectTopic(
+    id: string,
+    carriedAnswers: Record<string, string> = {},
+  ) {
     if (id === 'gas-emergency') {
       setTopicId(id)
       setView('gas-alert')
@@ -598,9 +622,7 @@ export default function TriageFlow() {
       if (reroute) {
         selectTopic(
           reroute,
-          key === 'shower-appearance'
-            ? { 'shower-inferred': answer }
-            : {},
+          key === 'shower-appearance' ? { 'shower-inferred': answer } : {},
         )
         return
       }
@@ -920,7 +942,8 @@ export default function TriageFlow() {
             <strong>Useful wording</strong>
             <p>
               {topic.group === 'showers'
-                ? answers['shower-intent'] === 'Repair a fault / temperature problem'
+                ? answers['shower-intent'] ===
+                  'Repair a fault / temperature problem'
                   ? 'This is a fault enquiry, not a replacement quote. Let me take the details and arrange a review before suggesting a repair or price.'
                   : topic.id === 'shower-unknown'
                     ? 'If they do not know the shower type, ask whether they see a white wall unit, an exposed mixer bar, a large rainfall head or concealed controls. These are clues rather than confirmation; photos may be needed.'
