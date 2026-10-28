@@ -348,7 +348,10 @@
 .warranty-card-link {
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 .warranty-card-link:hover,
 .warranty-card-link:focus-visible {

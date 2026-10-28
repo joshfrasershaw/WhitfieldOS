@@ -55,7 +55,10 @@ export default function WarrantyRegistration() {
         <ExternalLink size={15} />
         <span>Manufacturer portals</span>
         <span className="notice-divider">/</span>
-        <p>Registration happens on the manufacturer's website, in a new tab. No forms, tracking or API connection in WhitfieldOS.</p>
+        <p>
+          Registration happens on the manufacturer's website, in a new tab. No
+          forms, tracking or API connection in WhitfieldOS.
+        </p>
       </div>
 
       <div className="warranty-grid">
@@ -85,8 +88,9 @@ export default function WarrantyRegistration() {
       </div>
       <p className="tool-help">
         Use the correct manufacturer's portal for the product being installed.
-        The links above cover Worcester Bosch gas, oil and air conditioning, plus Gledhill cylinders.
-        Other brands can be added when you supply their registration pages.
+        The links above cover Worcester Bosch gas, oil and air conditioning,
+        plus Gledhill cylinders. Other brands can be added when you supply their
+        registration pages.
       </p>
     </>
   )

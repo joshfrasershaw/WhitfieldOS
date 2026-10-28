@@ -1,11 +1,15 @@
 import { test, expect } from '@playwright/test'
 
-test('warranty cards open their supplied manufacturer portals', async ({ page }) => {
+test('warranty cards open their supplied manufacturer portals', async ({
+  page,
+}) => {
   await page.goto('/warranty-registration')
   const bosch = 'https://installer.worcester-bosch.co.uk/jobs/guarantees'
   const gledhill = 'https://installerconnect.com/app/dashboard'
   for (const category of ['Gas Boilers', 'Oil Boilers', 'Air Conditioning']) {
-    const card = page.getByRole('link', { name: category + ' — open Worcester Bosch registration' })
+    const card = page.getByRole('link', {
+      name: category + ' — open Worcester Bosch registration',
+    })
     await expect(card).toHaveAttribute('href', bosch)
     await expect(card).toHaveAttribute('target', '_blank')
     await expect(card).toHaveAttribute('rel', 'noopener noreferrer')
@@ -15,7 +19,9 @@ test('warranty cards open their supplied manufacturer portals', async ({ page })
   })
   await expect(cylinderCard).toHaveAttribute('href', gledhill)
   await expect(cylinderCard).toHaveAttribute('target', '_blank')
-  await expect(page.getByRole('heading', { name: 'Product & Warranty Registration' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Product & Warranty Registration' }),
+  ).toBeVisible()
 })
 
 test('route planner works offline with an uploaded coordinate file', async ({
