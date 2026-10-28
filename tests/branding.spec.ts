@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test'
 
-test('Whitfield branding uses supplied images and exact company colour tokens', async ({
-  page,
-}) => {
+test('Whitfield branding uses supplied images and exact company colour tokens', async ({ page }, testInfo) => {
   await page.goto('/')
   const logo = page.locator('.brand-image')
   const van = page.locator('.welcome-van')
@@ -11,7 +9,7 @@ test('Whitfield branding uses supplied images and exact company colour tokens', 
   }
   await expect(logo).toBeVisible()
   if (testInfo.project.name !== 'desktop') {
-    await page.getByRole('button', { name: 'Close navigation' }).last().click()
+    await page.getByRole('button', { name: 'Close menu' }).click()
   }
   await expect(van).toBeVisible()
   expect(
