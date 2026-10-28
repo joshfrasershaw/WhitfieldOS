@@ -16,7 +16,7 @@ import {
   ShieldAlert,
   UserRound,
 } from 'lucide-react'
-import { PageHeader, Panel } from '../components/ui'
+import { PageHeader } from '../components/ui'
 import {
   DISPATCH_SCRIPT,
   GAS_SAFETY_SCRIPT,
@@ -55,7 +55,6 @@ const commonFields: Step[] = [
   {key:'phone',prompt:'What is the best contact number?',type:'tel'},
   {key:'issue',prompt:'Can you briefly describe what is happening?'},
 ]
-const photoTriggers = /photo|picture|access|concealed|pipe|leak|under floor|underfloor|visible|tap/i
 
 function guessOptions(question:string):string[]|undefined {
   const q=question.toLowerCase()
@@ -195,8 +194,10 @@ export default function TriageFlow() {
     setAnswers({});setValue('');setHandoff(null);setCopied(false);setCopiedPhotos(false);setDiaryConfirmed(false)
   }
   async function copy(text:string,kind:'summary'|'photos') {
-    try {await navigator.clipboard.writeText(text);kind==='summary'?setCopied(true):setCopiedPhotos(true)}
-    catch {kind==='summary'?setCopied(false):setCopiedPhotos(false)}
+    try {await navigator.clipboard.writeText(text);if (kind==='summary') setCopied(true)
+      else setCopiedPhotos(true)}
+    catch {if (kind==='summary') setCopied(false)
+      else setCopiedPhotos(false)}
   }
   const summary=[
     'WHITFIELDOS TRIAGE — NOT A CONFIRMED BOOKING',
