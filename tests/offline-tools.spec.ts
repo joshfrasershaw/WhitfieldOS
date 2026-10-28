@@ -46,7 +46,7 @@ test('route planner works offline with an uploaded coordinate file', async ({
   await page.getByRole('button', { name: 'Optimise job order' }).click()
   await expect(page.getByText('STRAIGHT-LINE TOTAL')).toBeVisible()
   await expect(
-    page.getByRole('link', { name: /Open route in Google Maps/ }),
+    page.getByRole('link', { name: /Check driving route in Google Maps/ }),
   ).toHaveAttribute('href', /google.com\/maps\/dir/)
 })
 
