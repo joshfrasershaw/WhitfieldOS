@@ -786,3 +786,43 @@
     padding: 18px;
   }
 }
+
+.triage-whatsapp-number {
+  display: grid;
+  gap: 8px;
+  max-width: 440px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--color-ink);
+}
+.triage-whatsapp-number input {
+  border: 1px solid #bdcbd3;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 14px;
+  background: #fff;
+  min-height: 43px;
+}
+.triage-whatsapp-number small {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-secondary-text);
+}
+.triage-message-preview {
+  border: 1px solid var(--color-line);
+  background: #f5f8fa;
+  border-radius: 6px;
+  padding: 14px 17px;
+  display: grid;
+  gap: 8px;
+  max-width: 700px;
+}
+.triage-message-preview strong {
+  font-size: 12px;
+  color: var(--color-ink);
+}
+.triage-message-preview p {
+  white-space: pre-line;
+  line-height: 1.7;
+  color: var(--color-ink);
+}

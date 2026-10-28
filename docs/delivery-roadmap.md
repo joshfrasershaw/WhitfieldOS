@@ -56,3 +56,9 @@ Before staff rely on it for quoting or booking:
 - George must review all acceptance/decline branches, particularly concealed/toilet/base/waste-pipe leaks, gas incidents and work previously completed by Whitfield.
 - Confirm up-to-date appointment scripts and availability rules against the actual ServiceM8 diary.
 - Agree secure customer intake and payment handling once authentication is implemented.
+
+## Customer photograph requests — October 2026 refinement
+
+The outbound WhatsApp draft is addressed to the customer from the number captured during the same Triage session and contains the agreed company wording. The sender must use the Whitfield business WhatsApp account on their device; click-to-chat cannot automatically select a sender or send a message. If the caller has not supplied a number, a labelled field appears. Telephone numbers and customer-specific links are kept out of source control. This flow uses no paid WhatsApp API. Confirm the customer can receive WhatsApp and review the draft before pressing send.
+
+The leaking-toilet script no longer asks duplicate cistern/source/timing questions. Waste-pipe or base leaks end the routine path early, with a manager/exclusion outcome and the same accessible photo handover.
