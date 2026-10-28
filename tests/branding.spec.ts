@@ -1,13 +1,23 @@
 import { test, expect } from '@playwright/test'
 
-test('Whitfield branding uses supplied images and exact company colour tokens', async ({ page }) => {
+test('Whitfield branding uses supplied images and exact company colour tokens', async ({
+  page,
+}) => {
   await page.goto('/')
   const logo = page.locator('.brand-image')
   const van = page.locator('.welcome-van')
   await expect(logo).toBeVisible()
   await expect(van).toBeVisible()
-  expect(await logo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
-  expect(await van.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true)
+  expect(
+    await logo.evaluate(
+      (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
+    ),
+  ).toBe(true)
+  expect(
+    await van.evaluate(
+      (img: HTMLImageElement) => img.complete && img.naturalWidth > 0,
+    ),
+  ).toBe(true)
   await expect(logo).toHaveAttribute('src', '/brand/whitfield-logo.png')
   await expect(van).toHaveAttribute('src', '/brand/whitfield-van.jpg')
   const palette = await page.evaluate(() => {

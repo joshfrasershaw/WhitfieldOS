@@ -88,7 +88,6 @@ export default function Dashboard() {
         </div>
       </PageHeader>
       <section className="welcome-banner">
- 
         <div>
           <h2>A clear view starts here.</h2>
           <p>
