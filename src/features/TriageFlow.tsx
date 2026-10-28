@@ -134,7 +134,7 @@ function guessOptions(question: string): string[] | undefined {
     return ['Yes', 'No', 'Not sure']
   return undefined
 }
-export function makeSteps(topic: Topic): Step[] {
+export function makeSteps(topic: Topic, inferredShowerType = ''): Step[] {
   const base = [...commonFields]
   const isToiletLeak =
     topic.id === 'toilet-leak-main' ||
@@ -152,6 +152,40 @@ export function makeSteps(topic: Topic): Step[] {
       required: true,
       options: ['No', 'Yes', 'Not sure'],
     })
+  if (topic.id === 'shower-unknown') {
+    base.push({
+      key: 'shower-appearance',
+      prompt: 'How would the customer describe the shower?',
+      options: [
+        'White electric-looking box on the wall',
+        'Exposed mixer bar or separate temperature and flow controls',
+        'Large overhead rainfall / waterfall head',
+        'Controls concealed behind tiles',
+        'Not sure — request photographs',
+      ],
+    })
+    return base
+  }
+  if (topic.id === 'electric-shower' || topic.id === 'rainfall-shower' || topic.id === 'mixer-shower') {
+    if (inferredShowerType) {
+      base.push({
+        key: 'shower-type-confirm',
+        prompt: 'That appearance is only a clue. Can the customer confirm which type of shower they have?',
+        options: ['Yes, the selected type is confirmed', 'No / still unsure — request photos'],
+      })
+    }
+    base.push({
+      key: 'shower-intent',
+      prompt: 'What does the customer want us to do?',
+      options: [
+        'Repair a fault / temperature problem',
+        'Replace the existing shower',
+        'Install a shower where there is not one',
+        'Not sure yet',
+      ],
+      required: true,
+    })
+  }
   if (isToiletLeak) {
     base.push({
       key: 'toilet-cistern',
@@ -252,6 +286,12 @@ function nextTopicForAnswer(
   value: string,
   topic: Topic,
 ): string | null {
+  if (key === 'shower-appearance') {
+    if (value.startsWith('White electric-looking')) return 'electric-shower'
+    if (value.startsWith('Exposed mixer')) return 'mixer-shower'
+    if (value.startsWith('Large overhead')) return 'rainfall-shower'
+    if (value.startsWith('Controls concealed')) return 'mixer-shower'
+  }
   if (key === 'toilet-cistern' && value.startsWith('Concealed'))
     return 'toilet-concealed'
   if (key === 'toilet-repair-issue') {
@@ -279,6 +319,46 @@ function getDecision(
   price?: string
   note?: string
 } {
+  if (topic.group === 'showers') {
+    const intent = answers['shower-intent']
+    if (topic.id === 'shower-unknown' || intent === 'Not sure yet' || intent === undefined) {
+      return {
+        kind: 'photos',
+        title: 'Confirm shower type and request photographs',
+        detail: 'The shower type or intended work has not been confirmed. Request photos and refer the request for assessment. Do not quote an installation price.',
+      }
+    }
+    if (intent === 'Repair a fault / temperature problem') {
+      return {
+        kind: 'george',
+        title: 'Shower fault — refer for assessment',
+        detail: 'The caller reports an existing shower fault. Record the symptoms and make/model, request close-up and wider photographs and have George review the work required. The installation price does not apply to fault investigation or repair.',
+      }
+    }
+    if (intent === 'Install a shower where there is not one') {
+      return {
+        kind: 'quote',
+        title: 'New shower installation — assess before quoting',
+        detail: 'This is not a like-for-like replacement. Confirm location, water/electrical provision, type and access with George before offering a price or appointment.',
+      }
+    }
+    if (topic.id === 'mixer-shower') {
+      return {
+        kind: 'photos',
+        title: 'Mixer shower replacement — photos and quote review',
+        detail: 'The scripts do not provide a general fixed price for a mixer shower replacement. Obtain photographs and refer for a suitable quote.',
+      }
+    }
+    if (intent === 'Replace the existing shower') {
+      return {
+        kind: 'fixed',
+        title: topic.id === 'electric-shower' ? 'Electric shower replacement enquiry' : 'Rainfall shower replacement enquiry',
+        detail: topic.message || 'Check suitability, current pricing and availability before offering a booking.',
+        price: topic.price,
+        note: 'Script price indication only. Confirm like-for-like suitability and the current approved price before quoting.',
+      }
+    }
+  }
   if (answers.installed === 'Yes — within the last 12 months')
     return {
       kind: 'george',
@@ -403,7 +483,10 @@ export default function TriageFlow() {
   const [safetyReturn, setSafetyReturn] = useState<View>('home')
   const [diaryConfirmed, setDiaryConfirmed] = useState(false)
   const topic = topicById.get(topicId)
-  const steps = useMemo(() => (topic ? makeSteps(topic) : []), [topic])
+  const steps = useMemo(
+    () => (topic ? makeSteps(topic, answers['shower-inferred'] || '') : []),
+    [topic, answers['shower-inferred']],
+  )
   const step = steps[stepIndex]
   const photoLink = whatsappPhotoUrl(answers.phone || '')
   const rawDecision = topic ? getDecision(topic, answers) : null
@@ -428,7 +511,7 @@ export default function TriageFlow() {
     if (next === 'boilers') setView('fuel')
     else setView('choose')
   }
-  function selectTopic(id: string) {
+  function selectTopic(id: string, carriedAnswers: Record<string, string> = {}) {
     if (id === 'gas-emergency') {
       setTopicId(id)
       setView('gas-alert')
@@ -444,6 +527,7 @@ export default function TriageFlow() {
       name: previous.name || '',
       phone: previous.phone || '',
       issue: previous.issue || '',
+      ...carriedAnswers,
     }))
     setHandoff(null)
     setCopied(false)
@@ -500,10 +584,27 @@ export default function TriageFlow() {
       setValue('')
       return
     }
+    if (key === 'shower-type-confirm' && answer.startsWith('No /')) {
+      setHandoff('photos')
+      setView('result')
+      setValue('')
+      return
+    }
     if (topic) {
       const reroute = nextTopicForAnswer(key, answer, topic)
       if (reroute) {
-        selectTopic(reroute)
+        selectTopic(
+          reroute,
+          key === 'shower-appearance'
+            ? { 'shower-inferred': answer }
+            : {},
+        )
+        return
+      }
+      if (key === 'shower-appearance') {
+        setHandoff('photos')
+        setView('result')
+        setValue('')
         return
       }
     }
@@ -575,6 +676,9 @@ export default function TriageFlow() {
     'Telephone: ' + (answers.phone || 'Not supplied'),
     'Postcode: ' + (answers.postcode || 'Not supplied'),
     'Issue: ' + (answers.issue || 'Not supplied'),
+    ...(answers['shower-inferred']
+      ? ['Shower appearance (unconfirmed): ' + answers['shower-inferred']]
+      : []),
     ...steps
       .filter(
         (s) =>
@@ -812,9 +916,15 @@ export default function TriageFlow() {
           <div className="triage-live-help">
             <strong>Useful wording</strong>
             <p>
-              {topic.outcome === 'diagnostic'
-                ? DISPATCH_SCRIPT
-                : topic.message || REVIEW_SCRIPT}
+              {topic.group === 'showers'
+                ? answers['shower-intent'] === 'Repair a fault / temperature problem'
+                  ? 'This is a fault enquiry, not a replacement quote. Let me take the details and arrange a review before suggesting a repair or price.'
+                  : topic.id === 'shower-unknown'
+                    ? 'If they do not know the shower type, ask whether they see a white wall unit, an exposed mixer bar, a large rainfall head or concealed controls. These are clues rather than confirmation; photos may be needed.'
+                    : 'We have established the type of shower. Let me confirm whether the customer wants a fault assessed, an existing unit replaced, or a completely new installation before discussing prices.'
+                : topic.outcome === 'diagnostic'
+                  ? DISPATCH_SCRIPT
+                  : topic.message || REVIEW_SCRIPT}
             </p>
           </div>
         </div>
