@@ -50,7 +50,7 @@ Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA 
 
 ## No-cost offline tools (phase 1.1)
 
-The browser-only route planner uses a user-imported WGS84 postcode CSV for coordinates, calculates haversine distances and uses nearest-neighbour + 2-opt to suggest an order. It does **not** know roads or traffic. No coordinates, job lists or caller details are uploaded or persisted. Google's publicly supported Maps URLs provide an external hand-off only and are not a Maps API integration. Source licensing and dataset maintenance are the user's responsibility.
+The browser-only route planner includes 2,856 UK outward-postcode district centroids from the CC0-licensed gibbs/uk-postcodes dataset. It can optionally use a user-imported WGS84 full-postcode CSV for better accuracy. It calculates haversine distances; Held–Karp dynamic programming finds the exact shortest straight-line ordering for 10 or fewer jobs, with nearest-neighbour + 2-opt for larger runs. It does **not** know roads or traffic. No coordinates, job lists or caller details are uploaded or persisted. Google's publicly supported Maps URLs provide an external hand-off only and are not a Maps API integration. Source licensing and dataset maintenance are the user's responsibility.
 
 The manufacturer registration hub stores **URLs only** in local browser storage; links are not shared across browsers or audited. Never include customer details or service credentials in manufacturer URLs.
 

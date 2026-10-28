@@ -6,7 +6,7 @@
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
 | Management Dashboard                                        | Visual shell, Jobs Today and Expected Revenue Today empty KPIs                  | Read-only ServiceM8 job and price data, with job value semantics validated    |
 | Dispatch diary / Triage / Inventory                         | Purpose-specific empty workspaces                                               | Source integrations, business rules and workflows                             |
-| Route Planner                                               | Working, offline coordinate CSV import and route ordering; Google Maps hand-off | Day-job import from ServiceM8, appointments, travel-time network if justified |
+| Route Planner                                               | Working, bundled postcode district lookup and pure-code optimiser; optional precise CSV; Maps link | Day-job import from ServiceM8, appointments, travel-time network if justified |
 | Product & Warranty Registration                             | Outbound registration directory, configurable per browser                       | Centrally managed verified manufacturer URLs; no tracking by request          |
 | Call Desk                                                   | Manual ephemeral enquiry, WhatsApp hand-off and supplied ServiceM8 record URL   | Secure caller ID feed and live customer lookup                                |
 | Sales, service renewals, finance, growth, people, reporting | Consistent departmental shells                                                  | Read-only adapters and then carefully authorised write actions                |
@@ -31,9 +31,9 @@
 
 ## Offline routing: limitations and next steps
 
-The current algorithm uses postcode latitude/longitude as a proxy for distance, not the road network. It ignores one-way systems, traffic, route restrictions, service durations, time windows, engineer skills and workload balancing. This is useful to demonstrate route order but **not** evidence of travel time savings.
+The current algorithm uses historic, approximate postcode-district centroids (or optionally imported full-postcode latitude/longitude) as a proxy for distance, not the road network. It ignores one-way systems, traffic, route restrictions, service durations, time windows, engineer skills and workload balancing. This is useful to demonstrate route order but **not** evidence of travel time savings.
 
-An offline WGS84 postcode dataset can be supplied as CSV; the browser loads it only in memory. An appropriate licence and accurate maintained data are required. A genuine road-routing graph can eventually be hosted on infrastructure under Whitfield's control, with deployment and maintenance costs assessed before use.
+The built-in 2,856-district dataset is CC0-licensed and loaded within the app. An optional WGS84 full-postcode CSV can be supplied for better precision, loaded only in memory. An appropriate licence and accurate maintained data are required. A genuine road-routing graph can eventually be hosted on infrastructure under Whitfield's control, with deployment and maintenance costs assessed before use.
 
 The Google Maps URL is an optional external directions link, not a Google Maps API call or in-app map renderer. Verify waypoint coverage and limits on the target device.
 

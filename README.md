@@ -94,9 +94,13 @@ The displayed date uses Europe/London. Calendar views use the browser's local ca
 
 ## Phase 1.1: Offline management tools
 
-- **Route Planner** (Operations): import your own WGS84 postcode/latitude/longitude CSV in the browser, set fixed start and end postcodes, add jobs, optimise an approximate straight-line sequence with nearest-neighbour/2-opt and open an external Google Maps route. No routing API, subscriptions, network postcode lookups, live road times or automatic ServiceM8 diary import. Imported data is never saved.
+- **Route Planner** (Operations): immediately enter UK job postcodes with no spreadsheet upload. WhitfieldOS bundles 2,856 historic CC0-licensed postcode *district* centroids; the engine chooses the exact shortest straight-line order for up to 10 jobs, then a fast heuristic for larger runs, with fixed start/end, manual reordering, copyable run and an optional Google Maps link. Importing more precise full-postcode coordinates is optional. **District positions are approximate, not driving distances or journey times.** No paid routing API, subscription, external lookup or automatic ServiceM8 diary import. Job details are not stored.
 - **Product & Warranty Registration** (Operations): gas boilers, oil boilers, air-conditioning units and hot-water cylinders. Add verified manufacturer HTTPS registration links; open those websites externally. Links save **only in this browser**, with no warranty tracking.
 - **Call Desk & Customer Handover** (Customers & Commercial): manually capture a caller's number, customer details and enquiry, copy a booking brief, open WhatsApp and open a separately supplied ServiceM8 profile URL. The fields are memory-only. **No automatic caller recognition or customer matching** is implemented, and you must not use this unauthenticated public prototype to store real customer records.
 - Dashboard now contains both **Jobs Today** and **Expected Revenue Today** as distinct, unconnected KPIs.
 
 See [delivery roadmap and security gates](docs/delivery-roadmap.md) for the remaining phases.
+
+### Route planner's bundled data
+
+Postcode district centroids derived from [gibbs/uk-postcodes](https://github.com/gibbs/uk-postcodes) (CC0-1.0). District-level coordinates are deliberately approximate and historically sourced; for job-level positioning an operator can load a WGS84 CSV of exact postcodes. The app does not contact this dataset's author or any geocoding API at runtime. The external Google Maps link is a normal browser directions URL, not an API key or billed service. Validate the actual driving route before allocating work.

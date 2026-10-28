@@ -27,6 +27,7 @@ test('route planner works offline with an uploaded coordinate file', async ({
   page,
 }) => {
   await page.goto('/route-planner')
+  await page.getByText('Import more precise postcode coordinates').click()
   await page.getByLabel('Import postcode CSV').setInputFiles({
     name: 'postcodes.csv',
     mimeType: 'text/csv',
@@ -43,7 +44,7 @@ test('route planner works offline with an uploaded coordinate file', async ({
   await page.getByLabel('Postcode', { exact: true }).fill('FIRST')
   await page.getByRole('button', { name: 'Add job', exact: true }).click()
   await page.getByRole('button', { name: 'Optimise job order' }).click()
-  await expect(page.getByText('STRAIGHT-LINE ROUTE')).toBeVisible()
+  await expect(page.getByText('STRAIGHT-LINE TOTAL')).toBeVisible()
   await expect(
     page.getByRole('link', { name: /Open route in Google Maps/ }),
   ).toHaveAttribute('href', /google.com\/maps\/dir/)
@@ -62,4 +63,24 @@ test('call desk keeps manual enquiry distinct from a live caller match', async (
     page.getByRole('link', { name: /Open WhatsApp chat/ }),
   ).toHaveAttribute('href', 'https://wa.me/447911123456')
   await expect(page.getByText('Name: Test Caller')).toBeVisible()
+})
+
+test('route planner runs with built-in postcode districts, no CSV and no external API', async ({ page }) => {
+  const external: string[] = []
+  page.on('request', (request) => {
+    if (!request.url().startsWith('http://127.0.0.1:') && !request.url().startsWith('http://localhost:')) external.push(request.url())
+  })
+  await page.goto('/route-planner')
+  await page.getByLabel('Start postcode').fill('SY4 3AB')
+  await page.getByLabel('Job / customer label').fill('Oil service')
+  await page.getByLabel('Postcode', { exact: true }).fill('CW3 0HY')
+  await page.getByRole('button', { name: 'Add job', exact: true }).click()
+  await page.getByLabel('Job / customer label').fill('Gas diagnostic')
+  await page.getByLabel('Postcode', { exact: true }).fill('ST19 9QE')
+  await page.getByRole('button', { name: 'Add job', exact: true }).click()
+  await page.getByRole('button', { name: 'Optimise job order' }).click()
+  await expect(page.getByText('STRAIGHT-LINE TOTAL')).toBeVisible()
+  await expect(page.getByText(/location lookups use approximate district centres/)).toBeVisible()
+  await expect(page.getByRole('link', { name: /Check driving route in Google Maps/ })).toHaveAttribute('href', /google.com\/maps\/dir/)
+  expect(external).toEqual([])
 })
