@@ -421,3 +421,61 @@
   background: white;
   min-height: 39px;
 }
+
+/* WhitfieldOS guided call handling */
+.triage-app { display:grid; gap:17px; max-width:1120px; margin:0 auto; }
+.triage-safety-strip {display:flex;gap:12px;align-items:center;background:#fff1e9;border:1px solid #d5a287;border-left:4px solid #c35727;border-radius:6px;padding:14px 18px;color:#5c2b16;font-size:12px;line-height:1.5}
+.triage-safety-strip > span {flex:1}
+.triage-safety-strip > button {display:inline-flex;gap:7px;align-items:center;color:#7f310f;font-weight:750;padding:7px}
+.triage-top-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.triage-privacy{margin-left:auto;font-size:11px;color:var(--color-secondary-text)}
+.triage-main{background:#fff;border:1px solid var(--color-line);padding:clamp(19px,3vw,34px);border-radius:7px;display:grid;gap:18px}
+.triage-main > h2,.triage-question h2{font-size:clamp(19px,2.4vw,27px);font-weight:650;line-height:1.35}
+.triage-topic-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.triage-choice{display:grid;position:relative;grid-template-columns:1fr auto;text-align:left;align-items:center;gap:4px 9px;background:#fafafa;border:1px solid var(--color-line);border-radius:6px;padding:18px;min-height:104px;color:var(--color-ink)}
+.triage-choice:hover,.triage-options>button:hover{background:#eff6ff;border-color:#71b0ff}
+.triage-choice:focus-visible,.triage-options>button:focus-visible{outline:3px solid #71b0ff;outline-offset:2px}
+.triage-choice-category{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:700;color:#566165;grid-column:1}
+.triage-choice strong{font-size:15px;grid-column:1}
+.triage-choice small{font-size:11px;line-height:1.55;color:var(--color-secondary-text);grid-column:1}
+.triage-choice>svg{grid-row:1 /span 3;grid-column:2}
+.triage-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.triage-options>button{display:flex;gap:15px;justify-content:space-between;align-items:center;background:#f8fafb;border:1px solid #dbe2e5;border-radius:5px;padding:15px 16px;min-height:52px;text-align:left;color:#25363a;font-size:13px;font-weight:600}
+.triage-options>button svg{color:#416d9d}
+.triage-inline-option{display:inline-flex;justify-self:start;color:#345978;border-bottom:1px dashed #9ebbd3;font-size:12px;font-weight:600;padding:6px 0;text-align:left}
+.triage-progress{display:flex;gap:10px;justify-content:space-between;font-size:11px;color:var(--color-secondary-text)}
+.triage-progress span:first-child{font-weight:700;color:var(--color-ink)}
+.triage-progress-bar{height:5px;background:#e9eff4;border-radius:8px;overflow:hidden}
+.triage-progress-bar>span{display:block;background:#71b0ff;height:100%;transition:width .15s}
+.triage-question{display:grid;gap:22px;padding:18px 0}
+.triage-eyebrow{text-transform:uppercase;font-size:10px;letter-spacing:1.2px;font-weight:750;color:#566165}
+.triage-question form{display:flex;flex-wrap:wrap;gap:10px}
+.triage-question input[type=text],.triage-question input[type=tel]{flex:1 1 220px;min-width:0;background:#fff;border:1px solid #becbd1;border-radius:5px;padding:13px 14px;font-size:14px}
+.triage-live-help{background:#f4f7fa;border-left:3px solid #71b0ff;padding:16px 19px;display:grid;gap:8px;line-height:1.7;font-size:12px}
+.triage-live-help strong{font-size:12px}
+.triage-live-help p{color:#4d5b60}
+.triage-outcome-head{display:flex;align-items:center;gap:14px}
+.triage-outcome-head>svg{color:#315d82}
+.triage-outcome-head h2{font-size:24px}
+.triage-price{display:grid;gap:6px;padding:15px 18px;background:#eff5f9;border:1px solid #d6e5f0;border-radius:5px}
+.triage-price span{font-size:11px;color:var(--color-secondary-text)}
+.triage-price strong{font-size:25px;font-weight:750;color:#263b48}
+.triage-price-warning{display:flex;gap:10px;align-items:flex-start;padding:15px;background:#fff6e5;border:1px solid #e5c894;border-radius:5px;line-height:1.6;font-size:12px;color:#58401a}
+.triage-price-warning p{margin-top:4px}
+.triage-readout{font-size:14px;line-height:1.8;color:#384449}
+.triage-handoff-actions,.triage-fallback-buttons{display:flex;flex-wrap:wrap;gap:9px}
+.triage-fallbacks{padding:22px 24px;background:#f8fafb;border:1px solid var(--color-line);border-radius:6px;display:grid;gap:11px}
+.triage-fallbacks h3{font-size:14px}
+.triage-fallbacks p{line-height:1.65;color:var(--color-secondary-text);font-size:12px}
+.triage-handoff-panel{display:grid;gap:12px;background:#fff;border:1px solid #cfdadd;padding:18px;border-radius:6px}
+.triage-handoff-panel .button{justify-self:start}
+.triage-brief-preview{border:1px solid var(--color-line);background:#f8fafb;padding:15px;min-width:0;display:grid;gap:8px}
+.triage-brief-preview pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.7;color:#415256}
+.triage-emergency{border:2px solid #c04c37;background:#fff5f0;color:#562515}
+.triage-emergency h2{color:#70291a}
+.triage-emergency p{font-size:15px;line-height:1.8}
+.triage-emergency .button{justify-self:start}
+.triage-footer-warning{font-size:11px;display:flex;gap:9px;align-items:center;color:var(--color-secondary-text);padding:10px}
+.triage-confirmed{display:flex;gap:9px;align-items:center;font-weight:650;color:#293f48;padding-top:10px}
+.triage-call-script{border-left:3px solid #71b0ff;padding:10px 17px;background:white;color:#30475c}
+@media(max-width:680px){.triage-topic-grid,.triage-options{grid-template-columns:1fr}.triage-safety-strip{align-items:flex-start;flex-wrap:wrap}.triage-top-actions{gap:7px}.triage-privacy{flex-basis:100%;margin-left:0}.triage-question form{flex-direction:column}.triage-main{padding:17px}.triage-fallbacks{padding:18px}}

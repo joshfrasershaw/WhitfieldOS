@@ -95,3 +95,53 @@ test('route planner runs with built-in postcode districts, no CSV and no externa
   ).toHaveAttribute('href', /google.com\/maps\/dir/)
   expect(external).toEqual([])
 })
+
+test('triage paths crosslink toilet leaks, present diagnostics and preserve no-booking state',async ({page})=>{
+  await page.goto('/triage')
+  await page.getByRole('button',{name:/Leaks Find the source/}).click()
+  await page.getByRole('button',{name:/^Toilet$/}).click()
+  await expect(page.getByText('Is the toilet cistern exposed or concealed?')).toHaveCount(0)
+  await page.getByRole('button',{name:'No',exact:true}).click()
+  for(const [label,value] of [
+    ['What is the property postcode?','SY1 1AA'],
+    ['May I take your name, please?','Customer Test'],
+    ['What is the best contact number?','07111111111'],
+    ['Can you briefly describe what is happening?','Toilet leaking from cistern'],
+  ]){
+    await expect(page.getByText(label)).toBeVisible()
+    await page.getByRole('textbox',{name:'Answer'}).fill(value)
+    await page.getByRole('button',{name:/Continue/}).click()
+  }
+  await expect(page.getByText('Is the toilet cistern exposed or concealed?')).toBeVisible()
+  await page.getByRole('button',{name:/Concealed in cupboard/}).click()
+  await expect(page.getByText(/Concealed in cupboard/)).toHaveCount(0)
+  await expect(page.getByText('What is the property postcode?')).toBeVisible()
+})
+test('triage can escalate gas smell immediately instead of creating a booking',async({page})=>{
+  await page.goto('/triage')
+  await page.getByRole('button',{name:/Boilers & faults/}).click()
+  await page.getByRole('button',{name:'Gas',exact:true}).click()
+  await page.getByRole('button',{name:'Fault or breakdown'}).click()
+  await page.getByRole('button',{name:'Yes',exact:true}).click()
+  await expect(page.getByText('Possible gas escape — immediate safety action')).toBeVisible()
+  await expect(page.getByRole('link',{name:/Call 0800 111 999/})).toHaveAttribute('href','tel:0800111999')
+})
+test('triage reaches a documented diagnostic outcome and never claims a booking',async({page})=>{
+  await page.goto('/triage')
+  await page.getByRole('button',{name:/Boilers & faults/}).click()
+  await page.getByRole('button',{name:'Oil',exact:true}).click()
+  await page.getByRole('button',{name:'Fault or breakdown'}).click()
+  for(let count=0;count<24;count++){
+    if(await page.getByText('SCRIPT-GUIDED NEXT STEP').isVisible().catch(()=>false))break
+    const option=page.locator('.triage-question .triage-options > button').first()
+    if(await option.isVisible()){await option.click();continue}
+    const input=page.getByRole('textbox',{name:'Answer'})
+    if(await input.isVisible()){
+      await input.fill(count===1?'SY1 1AA':'Sample answer')
+      await page.getByRole('button',{name:/Continue/}).click()
+    }else break
+  }
+  await expect(page.getByText('SCRIPT-GUIDED NEXT STEP')).toBeVisible()
+  await expect(page.getByText('£199 + VAT')).toBeVisible()
+  await expect(page.getByText(/NOT A CONFIRMED BOOKING/)).toBeVisible()
+})

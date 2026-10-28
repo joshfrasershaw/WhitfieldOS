@@ -45,3 +45,13 @@ The Google Maps URL is an optional external directions link, not a Google Maps A
 4. Build/verify Android caller companion and secure desktop presence.
 5. Validate dashboard KPI definitions and calculations before showing expected revenue.
 6. Add operations, commercial, finance and growth connectors one by one, each with tests and an explicit cost assessment.
+
+## Triage flow: operational validation gate
+
+The October 2026 call scripts supplied a foundation for an interactive routing guide. The source documents include dated offers and conflicting prices. The first version is a **decision-support** workflow: customer intake, issue branching, question capture, visible talk track, outcome, photo/George handover and a plain-text copy of the brief. It does not sync with ServiceM8 or send WhatsApp messages. Only the script-derived information needed for the interface is committed publicly; original internal files are excluded.
+
+Before staff rely on it for quoting or booking:
+- Management must sign off today's price list and travel-area policies.
+- George must review all acceptance/decline branches, particularly concealed/toilet/base/waste-pipe leaks, gas incidents and work previously completed by Whitfield.
+- Confirm up-to-date appointment scripts and availability rules against the actual ServiceM8 diary.
+- Agree secure customer intake and payment handling once authentication is implemented.

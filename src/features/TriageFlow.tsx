@@ -138,10 +138,12 @@ export default function TriageFlow() {
   const [copied,setCopied]=useState(false)
   const [copiedPhotos,setCopiedPhotos]=useState(false)
   const [safetyReturn,setSafetyReturn]=useState<View>('home')
+  const [diaryConfirmed,setDiaryConfirmed]=useState(false)
   const topic=topicById.get(topicId)
   const steps=useMemo(()=>topic?makeSteps(topic):[],[topic])
   const step=steps[stepIndex]
-  const decision=topic?getDecision(topic,answers):null
+  const rawDecision=topic?getDecision(topic,answers):null
+  const decision = handoff && topic ? {kind:handoff,title:handoff==='photos'?'Request photographs before progressing':'Refer enquiry to George',detail:handoff==='photos'?PHOTO_SCRIPT:REVIEW_SCRIPT} : rawDecision
 
   function chooseGroup(next:GroupId) {
     setGroup(next);setTopicId('');setFuel('');setHandoff(null);setCopied(false)
@@ -149,12 +151,13 @@ export default function TriageFlow() {
     else setView('choose')
   }
   function selectTopic(id:string) {
+    if (id==='gas-emergency') {setTopicId(id);setView('gas-alert');setSafetyReturn('home');return}
     setTopicId(id);setView('questions');setStepIndex(0);setValue('')
     setAnswers((previous)=>({
       postcode:previous.postcode||'',name:previous.name||'',
       phone:previous.phone||'',issue:previous.issue||'',
     }))
-    setHandoff(null);setCopied(false)
+    setHandoff(null);setCopied(false);setDiaryConfirmed(false)
   }
   function chooseBoilerWork(item:string) {
     const diag:Record<string,string>={Gas:'gas-diagnostic',Oil:'oil-diagnostic',LPG:'lpg-diagnostic',Electric:'electric-diagnostic','Back boiler':'back-diagnostic'}
@@ -189,7 +192,7 @@ export default function TriageFlow() {
   }
   function reset(){
     setView('home');setGroup(null);setFuel('');setTopicId('');setStepIndex(0)
-    setAnswers({});setValue('');setHandoff(null);setCopied(false);setCopiedPhotos(false)
+    setAnswers({});setValue('');setHandoff(null);setCopied(false);setCopiedPhotos(false);setDiaryConfirmed(false)
   }
   async function copy(text:string,kind:'summary'|'photos') {
     try {await navigator.clipboard.writeText(text);kind==='summary'?setCopied(true):setCopiedPhotos(true)}
@@ -280,7 +283,10 @@ export default function TriageFlow() {
         {decision.price&&<div className="triage-price"><span>Script price indication — ex VAT</span><strong>{decision.price}</strong></div>}
         {(topic.priceStatus==='review'||decision.note)&&<div className="triage-price-warning"><CircleAlert size={18}/><div><strong>Check price / script applicability before quoting</strong><p>{decision.note||'Verify with the current approved price list.'}</p></div></div>}
         <p className="triage-readout">{decision.detail}</p>
-        {['diagnostic','service','fixed','quote'].includes(decision.kind)&&<div className="triage-live-help"><strong>Booking / timing wording</strong><p>{DISPATCH_SCRIPT}</p><p>Confirm pricing and availability in ServiceM8. Do not tell the customer a job is booked until it is recorded there.</p></div>}
+        {['diagnostic','service','fixed','quote'].includes(decision.kind)&&<div className="triage-live-help"><strong>Booking / timing wording</strong><p>{DISPATCH_SCRIPT}</p><p>Confirm pricing and availability in ServiceM8. Do not tell the customer a job is booked until it is recorded there.</p>
+          <label className="triage-confirmed"><input type="checkbox" checked={diaryConfirmed} onChange={(event)=>setDiaryConfirmed(event.target.checked)}/> Diary checked: attendance TODAY is genuinely available</label>
+          {diaryConfirmed && <blockquote className="triage-call-script">“Ok so I’m just looking at the diary now if I move a few things around I can get an engineer to you TODAY. Yes I can get an engineer to you TODAY.”</blockquote>}
+        </div>}
         {decision.kind==='decline'&&<div className="triage-live-help"><strong>Customer wording</strong><p>I'm sorry, this looks outside the work we can confidently accept from the information supplied. Let me confirm the right next step, rather than arrange the wrong type of visit.</p></div>}
         <div className="triage-handoff-actions">
           <button className="button" onClick={()=>void copy(summary,'summary')}>

@@ -22,6 +22,7 @@ import type { Module } from '../config/navigation'
 import RoutePlanner from './RoutePlanner'
 import WarrantyRegistration from './WarrantyRegistration'
 import CallDesk from './CallDesk'
+import TriageFlow from './TriageFlow'
 import WordPressShortcut from './WordPressShortcut'
 import { PageHeader, Panel, Empty, ConnectionNote } from '../components/ui'
 const integrations = [
@@ -523,41 +524,6 @@ function Documents({ module }: { module: Module }) {
     </div>
   )
 }
-function Triage({ module }: { module: Module }) {
-  return (
-    <>
-      <div className="triage-flow">
-        {module.labels.map((l, i) => (
-          <section className="panel triage-step" key={l}>
-            <span className="step-number">0{i + 1}</span>
-            <h2>{l}</h2>
-            <p>
-              {
-                [
-                  'Capture the issue, property context and the customer’s priorities.',
-                  'Structure the right questions and identify the information needed.',
-                  'Give the team a clear summary and a considered way forward.',
-                ][i]
-              }
-            </p>
-            <div className="triage-lines">
-              <span />
-              <span />
-              <span />
-            </div>
-          </section>
-        ))}
-      </div>
-      <Panel title="Diagnostic workspace">
-        <Empty
-          icon={module.icon}
-          title="Clarity before the first visit"
-          description="Future triage tools will support consistent enquiry handling and informed job allocation. No diagnostic recommendations are generated in V1."
-        />
-      </Panel>
-    </>
-  )
-}
 function Assistant() {
   return (
     <section className="panel assistant-workspace">
@@ -648,6 +614,7 @@ export default function Workspace({ module }: { module: Module }) {
   if (module.type === 'route') return <RoutePlanner />
   if (module.type === 'registration') return <WarrantyRegistration />
   if (module.type === 'calls') return <CallDesk />
+  if (module.type === 'triage') return <TriageFlow />
   return (
     <>
       <PageHeader
@@ -686,8 +653,6 @@ export default function Workspace({ module }: { module: Module }) {
         <Directory module={module} />
       ) : module.type === 'documents' ? (
         <Documents module={module} />
-      ) : module.type === 'triage' ? (
-        <Triage module={module} />
       ) : module.type === 'assistant' ? (
         <Assistant />
       ) : (
