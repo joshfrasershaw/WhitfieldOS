@@ -1,3 +1,5 @@
+import { OUTCODE_COORDINATES } from '../data/outcodes'
+
 export interface Coordinate {
   id: string
   label: string
@@ -80,6 +82,34 @@ export function parsePostcodeCsv(text: string): Map<string, PostcodePoint> {
   return index
 }
 
+
+export type PostcodeResolution = {
+  point: PostcodePoint
+  precision: 'full-postcode' | 'district'
+}
+
+/**
+ * Prefer explicitly imported full-postcode coordinates. Without an import,
+ * use the bundled historic UK outward-postcode centroid. This is approximate.
+ * Never report a district centroid as a full postcode geocode.
+ */
+export function resolvePostcode(
+  value: string,
+  imported: Map<string, PostcodePoint> = new Map(),
+): PostcodeResolution | null {
+  const normal = normalisePostcode(value)
+  const exact = imported.get(normal)
+  if (exact) return { point: exact, precision: 'full-postcode' }
+  const district =
+    /^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(normal)
+      ? normal.slice(0, -3)
+      : normal
+  const result = OUTCODE_COORDINATES[district]
+  return result
+    ? { point: { lat: result[0], lon: result[1] }, precision: 'district' }
+    : null
+}
+
 /** Great-circle distance in km; NOT road mileage or travel time. */
 export function distanceKm(a: PostcodePoint, b: PostcodePoint): number {
   const radians = (n: number) => (n * Math.PI) / 180
@@ -107,12 +137,63 @@ export function totalDistance(
   return total + distanceKm(previous, end)
 }
 
-/** Deterministic nearest-neighbour route, refined by 2-opt; fixed start/end. */
+/**
+ * For a typical engineer run (up to 10 stops), compute the exact best ordering
+ * for great-circle distances with fixed start and finish, using Held–Karp DP.
+ * Road driving time is not part of this model.
+ */
+function exactDistanceOrder(
+  start: PostcodePoint,
+  end: PostcodePoint,
+  jobs: Coordinate[],
+): Coordinate[] {
+  const n = jobs.length
+  if (n < 2) return [...jobs]
+  const stateCount = 1 << n
+  const best = new Float64Array(stateCount * n).fill(Infinity)
+  const parent = new Int16Array(stateCount * n).fill(-1)
+  for (let i = 0; i < n; i++) best[(1 << i) * n + i] = distanceKm(start, jobs[i])
+  for (let mask = 1; mask < stateCount; mask++) {
+    for (let last = 0; last < n; last++) {
+      const cost = best[mask * n + last]
+      if (!Number.isFinite(cost)) continue
+      for (let next = 0; next < n; next++) {
+        if (mask & (1 << next)) continue
+        const nextMask = mask | (1 << next)
+        const candidate = cost + distanceKm(jobs[last], jobs[next])
+        const offset = nextMask * n + next
+        if (candidate < best[offset]) {
+          best[offset] = candidate
+          parent[offset] = last
+        }
+      }
+    }
+  }
+  let last = -1
+  let total = Infinity
+  const full = stateCount - 1
+  for (let i = 0; i < n; i++) {
+    const candidate = best[full * n + i] + distanceKm(jobs[i], end)
+    if (candidate < total) { total = candidate; last = i }
+  }
+  const sequence: Coordinate[] = []
+  let mask = full
+  while (last >= 0) {
+    sequence.push(jobs[last])
+    const prev = parent[mask * n + last]
+    mask ^= 1 << last
+    last = prev
+  }
+  return sequence.reverse()
+}
+
+/** Deterministic, API-free optimisation, with fixed start and end. */
 export function optimiseRoute(
   start: PostcodePoint,
   end: PostcodePoint,
   jobs: Coordinate[],
 ): Coordinate[] {
+  if (jobs.length <= 10) return exactDistanceOrder(start, end, jobs)
   const remaining = [...jobs]
   const ordered: Coordinate[] = []
   let current = start
