@@ -520,7 +520,9 @@ export default function TriageFlow() {
     }
     setTopicId(id)
     setView('questions')
-    setStepIndex(0)
+    // The appearance helper has already collected the customer's details.
+    // Don't repeat that information when moving into the identified type.
+    setStepIndex(carriedAnswers['shower-inferred'] ? commonFields.length : 0)
     setValue('')
     setAnswers((previous) => ({
       postcode: previous.postcode || '',
