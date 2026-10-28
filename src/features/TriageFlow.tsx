@@ -319,7 +319,7 @@ function getDecision(
   price?: string
   note?: string
 } {
-  if (topic.group === 'showers') {
+  if (topic.group === 'showers' && topic.id !== 'shower-pump') {
     const intent = answers['shower-intent']
     if (topic.id === 'shower-unknown' || intent === 'Not sure yet' || intent === undefined) {
       return {
