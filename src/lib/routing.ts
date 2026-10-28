@@ -82,7 +82,6 @@ export function parsePostcodeCsv(text: string): Map<string, PostcodePoint> {
   return index
 }
 
-
 export type PostcodeResolution = {
   point: PostcodePoint
   precision: 'full-postcode' | 'district'
@@ -100,10 +99,9 @@ export function resolvePostcode(
   const normal = normalisePostcode(value)
   const exact = imported.get(normal)
   if (exact) return { point: exact, precision: 'full-postcode' }
-  const district =
-    /^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(normal)
-      ? normal.slice(0, -3)
-      : normal
+  const district = /^[A-Z]{1,2}[0-9][A-Z0-9]?[0-9][A-Z]{2}$/.test(normal)
+    ? normal.slice(0, -3)
+    : normal
   const result = OUTCODE_COORDINATES[district]
   return result
     ? { point: { lat: result[0], lon: result[1] }, precision: 'district' }
@@ -152,7 +150,8 @@ function exactDistanceOrder(
   const stateCount = 1 << n
   const best = new Float64Array(stateCount * n).fill(Infinity)
   const parent = new Int16Array(stateCount * n).fill(-1)
-  for (let i = 0; i < n; i++) best[(1 << i) * n + i] = distanceKm(start, jobs[i])
+  for (let i = 0; i < n; i++)
+    best[(1 << i) * n + i] = distanceKm(start, jobs[i])
   for (let mask = 1; mask < stateCount; mask++) {
     for (let last = 0; last < n; last++) {
       const cost = best[mask * n + last]
@@ -174,7 +173,10 @@ function exactDistanceOrder(
   const full = stateCount - 1
   for (let i = 0; i < n; i++) {
     const candidate = best[full * n + i] + distanceKm(jobs[i], end)
-    if (candidate < total) { total = candidate; last = i }
+    if (candidate < total) {
+      total = candidate
+      last = i
+    }
   }
   const sequence: Coordinate[] = []
   let mask = full

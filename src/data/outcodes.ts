@@ -2862,10 +2862,13 @@ ZE2,60.33047,-1.22484
 ZE3,59.88369,-1.30316`
 
 export const OUTCODE_COORDINATES = Object.fromEntries(
-  raw.trim().split('\n').map((line) => {
-    const [postcode, latitude, longitude] = line.split(',')
-    return [postcode, [Number(latitude), Number(longitude)]]
-  }),
+  raw
+    .trim()
+    .split('\n')
+    .map((line) => {
+      const [postcode, latitude, longitude] = line.split(',')
+      return [postcode, [Number(latitude), Number(longitude)]]
+    }),
 ) as Record<string, readonly [number, number]>
 
 export const OUTCODE_COUNT = 2856

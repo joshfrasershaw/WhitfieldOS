@@ -34,9 +34,15 @@ describe('offline postcode routing', () => {
     const result = optimiseRoute(start, end, jobs)
     function permute(items: typeof jobs): (typeof jobs)[] {
       if (!items.length) return [[]]
-      return items.flatMap((item, i) => permute(items.filter((_, j) => j !== i)).map((tail) => [item, ...tail]))
+      return items.flatMap((item, i) =>
+        permute(items.filter((_, j) => j !== i)).map((tail) => [item, ...tail]),
+      )
     }
-    const best = Math.min(...permute(jobs).map((permutation) => totalDistance(start, permutation, end)))
+    const best = Math.min(
+      ...permute(jobs).map((permutation) =>
+        totalDistance(start, permutation, end),
+      ),
+    )
     expect(totalDistance(start, result, end)).toBeCloseTo(best, 6)
   })
   it('normalises postcodes and accepts common UK coordinate CSV headers', () => {

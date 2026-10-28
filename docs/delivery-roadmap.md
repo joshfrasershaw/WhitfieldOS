@@ -2,14 +2,14 @@
 
 ## Delivery status
 
-| Area                                                        | Present                                                                         | Real-data phase                                                               |
-| ----------------------------------------------------------- | ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
-| Management Dashboard                                        | Visual shell, Jobs Today and Expected Revenue Today empty KPIs                  | Read-only ServiceM8 job and price data, with job value semantics validated    |
-| Dispatch diary / Triage / Inventory                         | Purpose-specific empty workspaces                                               | Source integrations, business rules and workflows                             |
+| Area                                                        | Present                                                                                            | Real-data phase                                                               |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| Management Dashboard                                        | Visual shell, Jobs Today and Expected Revenue Today empty KPIs                                     | Read-only ServiceM8 job and price data, with job value semantics validated    |
+| Dispatch diary / Triage / Inventory                         | Purpose-specific empty workspaces                                                                  | Source integrations, business rules and workflows                             |
 | Route Planner                                               | Working, bundled postcode district lookup and pure-code optimiser; optional precise CSV; Maps link | Day-job import from ServiceM8, appointments, travel-time network if justified |
-| Product & Warranty Registration                             | Outbound registration directory, configurable per browser                       | Centrally managed verified manufacturer URLs; no tracking by request          |
-| Call Desk                                                   | Manual ephemeral enquiry, WhatsApp hand-off and supplied ServiceM8 record URL   | Secure caller ID feed and live customer lookup                                |
-| Sales, service renewals, finance, growth, people, reporting | Consistent departmental shells                                                  | Read-only adapters and then carefully authorised write actions                |
+| Product & Warranty Registration                             | Outbound registration directory, configurable per browser                                          | Centrally managed verified manufacturer URLs; no tracking by request          |
+| Call Desk                                                   | Manual ephemeral enquiry, WhatsApp hand-off and supplied ServiceM8 record URL                      | Secure caller ID feed and live customer lookup                                |
+| Sales, service renewals, finance, growth, people, reporting | Consistent departmental shells                                                                     | Read-only adapters and then carefully authorised write actions                |
 
 ## Non-negotiable architecture
 

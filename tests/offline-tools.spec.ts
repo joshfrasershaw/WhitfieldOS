@@ -65,10 +65,16 @@ test('call desk keeps manual enquiry distinct from a live caller match', async (
   await expect(page.getByText('Name: Test Caller')).toBeVisible()
 })
 
-test('route planner runs with built-in postcode districts, no CSV and no external API', async ({ page }) => {
+test('route planner runs with built-in postcode districts, no CSV and no external API', async ({
+  page,
+}) => {
   const external: string[] = []
   page.on('request', (request) => {
-    if (!request.url().startsWith('http://127.0.0.1:') && !request.url().startsWith('http://localhost:')) external.push(request.url())
+    if (
+      !request.url().startsWith('http://127.0.0.1:') &&
+      !request.url().startsWith('http://localhost:')
+    )
+      external.push(request.url())
   })
   await page.goto('/route-planner')
   await page.getByLabel('Start postcode').fill('SY4 3AB')
@@ -80,7 +86,11 @@ test('route planner runs with built-in postcode districts, no CSV and no externa
   await page.getByRole('button', { name: 'Add job', exact: true }).click()
   await page.getByRole('button', { name: 'Optimise job order' }).click()
   await expect(page.getByText('STRAIGHT-LINE TOTAL')).toBeVisible()
-  await expect(page.getByText(/location lookups use approximate district centres/)).toBeVisible()
-  await expect(page.getByRole('link', { name: /Check driving route in Google Maps/ })).toHaveAttribute('href', /google.com\/maps\/dir/)
+  await expect(
+    page.getByText(/location lookups use approximate district centres/),
+  ).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: /Check driving route in Google Maps/ }),
+  ).toHaveAttribute('href', /google.com\/maps\/dir/)
   expect(external).toEqual([])
 })
