@@ -375,3 +375,49 @@
   font-size: 12px;
   font-weight: 650;
 }
+
+.wordpress-shortcut {
+  display: grid;
+  gap: 13px;
+}
+.wordpress-shortcut-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wordpress-shortcut-heading > div {
+  display: grid;
+  gap: 3px;
+}
+.wordpress-shortcut-heading p {
+  color: var(--color-secondary-text);
+  font-size: 12px;
+}
+.wordpress-shortcut-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.wordpress-shortcut-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.wordpress-shortcut-form label {
+  display: grid;
+  gap: 7px;
+  flex: 1;
+  min-width: 190px;
+  font-size: 11px;
+  font-weight: 650;
+}
+.wordpress-shortcut-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 6px;
+  background: white;
+  min-height: 39px;
+}

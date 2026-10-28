@@ -126,3 +126,17 @@ test('dashboard is an honest complete empty shell', async ({ page }) => {
     fullPage: true,
   })
 })
+
+test('WordPress shortcut is private to this browser and opens its configured login', async ({ page }) => {
+  await page.goto('/seo')
+  await expect(page.getByRole('heading', { name: 'WordPress website login' })).toBeVisible()
+  await expect(page.getByRole('link', { name: /Open WordPress Login/ })).toHaveCount(0)
+  const loginUrl = 'https://www.whitfieldplumbing.co.uk/wp-login.php?itsec-hb-token=example'
+  await page.getByLabel('WordPress login URL').fill(loginUrl)
+  await page.getByRole('button', { name: 'Save shortcut' }).click()
+  await expect(page.getByRole('link', { name: /Open WordPress Login/ })).toHaveAttribute('href', loginUrl)
+  await page.reload()
+  await expect(page.getByRole('link', { name: /Open WordPress Login/ })).toHaveAttribute('href', loginUrl)
+  await page.getByRole('button', { name: 'Clear saved link' }).click()
+  await expect(page.getByRole('link', { name: /Open WordPress Login/ })).toHaveCount(0)
+})

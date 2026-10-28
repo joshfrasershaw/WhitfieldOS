@@ -57,3 +57,7 @@ The warranty registration hub has four static, outbound manufacturer portal link
 The Call Desk is a manually entered, ephemeral proof of concept. A real caller pop-up requires an Android call-screening/identification companion (subject to Android permissions, role requirements and device behaviour), a trusted paired channel and a backend that queries ServiceM8 with credentials stored server-side. Browser code cannot read an incoming mobile call. ServiceM8 customer profile URLs must be obtained from the real provider account, not guessed.
 
 Do not persist personal data on a shared, unauthenticated static site. Live caller recognition and customer records remain blocked pending authentication, tenancy and data-protection decisions. Never put ServiceM8 tokens into Vite browser environment variables.
+
+## WordPress admin shortcut
+
+Under Growth → SEO & Website, an optional outbound WordPress login shortcut is saved in the current browser's localStorage after the operator supplies the URL. It is restricted to the Whitfield Plumbing domain and the WordPress login path. The actual concealed login URL must **never** be committed to this public repository, included in build assets, or printed in diagnostics. WhitfieldOS has no authentication yet; this shortcut is device-local convenience, not credential storage or secure secrets management. Staff on different devices must configure their own shortcut.

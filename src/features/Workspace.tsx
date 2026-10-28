@@ -22,6 +22,7 @@ import type { Module } from '../config/navigation'
 import RoutePlanner from './RoutePlanner'
 import WarrantyRegistration from './WarrantyRegistration'
 import CallDesk from './CallDesk'
+import WordPressShortcut from './WordPressShortcut'
 import { PageHeader, Panel, Empty, ConnectionNote } from '../components/ui'
 const integrations = [
   {
@@ -668,6 +669,7 @@ export default function Workspace({ module }: { module: Module }) {
           Ready for what comes next. Live functionality is not connected in V1.
         </p>
       </div>
+      {module.id === 'seo' && <WordPressShortcut />}
       {module.type === 'integrations' ? (
         <IntegrationWorkspace />
       ) : module.type === 'schedule' ? (
