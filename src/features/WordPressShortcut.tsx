@@ -39,7 +39,9 @@ export default function WordPressShortcut() {
     event.preventDefault()
     const candidate = draft.trim()
     if (!isApprovedLoginUrl(candidate)) {
-      setMessage('Use the full HTTPS WordPress login URL for whitfieldplumbing.co.uk.')
+      setMessage(
+        'Use the full HTTPS WordPress login URL for whitfieldplumbing.co.uk.',
+      )
       return
     }
     try {
@@ -76,7 +78,12 @@ export default function WordPressShortcut() {
         </div>
         {url ? (
           <div className="wordpress-shortcut-actions">
-            <a href={url} target="_blank" rel="noopener noreferrer" className="button">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="button"
+            >
               Open WordPress Login <ExternalLink size={15} />
             </a>
             <button type="button" className="button secondary" onClick={clear}>
@@ -97,13 +104,20 @@ export default function WordPressShortcut() {
                 required
               />
             </label>
-            <button type="submit" className="button"><Save size={14} /> Save shortcut</button>
+            <button type="submit" className="button">
+              <Save size={14} /> Save shortcut
+            </button>
           </form>
         )}
-        {message && <p className="tool-error" role="alert">{message}</p>}
+        {message && (
+          <p className="tool-error" role="alert">
+            {message}
+          </p>
+        )}
         <p className="tool-help">
-          Saved only in this browser, not in the public GitHub repository and not shared with other staff.
-          This stores a shortcut, not a WordPress username or password.
+          Saved only in this browser, not in the public GitHub repository and
+          not shared with other staff. This stores a shortcut, not a WordPress
+          username or password.
         </p>
       </div>
     </Panel>
