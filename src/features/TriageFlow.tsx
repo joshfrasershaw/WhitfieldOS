@@ -27,7 +27,11 @@ import {
   topics,
 } from './triageCatalog'
 import type { GroupId, Topic } from './triageCatalog'
-import { WHATSAPP_PHOTO_MESSAGE, WHITFIELD_BUSINESS_WHATSAPP, whatsappPhotoUrl } from './triageWhatsapp'
+import {
+  WHATSAPP_PHOTO_MESSAGE,
+  WHITFIELD_BUSINESS_WHATSAPP,
+  whatsappPhotoUrl,
+} from './triageWhatsapp'
 
 type View =
   | 'home'
@@ -108,7 +112,8 @@ function guessOptions(question: string): string[] | undefined {
     return ['Repair', 'Replacement', 'Not sure']
   if (q.includes('one or two holes')) return ['One', 'Two', 'Not sure']
   if (q.includes('rainfall head')) return ['Yes', 'No', 'Not sure']
-  if (q.includes('causing damage to the property')) return ['Yes', 'No', 'Not sure']
+  if (q.includes('causing damage to the property'))
+    return ['Yes', 'No', 'Not sure']
   if (
     q.includes('leaking continuously') ||
     q.includes('leak continuous') ||
@@ -949,7 +954,9 @@ export default function TriageFlow() {
               <button
                 type="button"
                 className="button secondary"
-                onClick={() => setHandoff(handoff === 'photos' ? null : 'photos')}
+                onClick={() =>
+                  setHandoff(handoff === 'photos' ? null : 'photos')
+                }
               >
                 <Camera size={15} /> Request WhatsApp photos
               </button>
@@ -989,7 +996,8 @@ export default function TriageFlow() {
                         }}
                       />
                       <small>
-                        Enter the customer's number, not Whitfield's business number.
+                        Enter the customer's number, not Whitfield's business
+                        number.
                       </small>
                     </label>
                   )}
@@ -1005,13 +1013,16 @@ export default function TriageFlow() {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <MessageCircle size={15} /> Open WhatsApp draft to customer
+                        <MessageCircle size={15} /> Open WhatsApp draft to
+                        customer
                       </a>
                     )}
                     <button
                       type="button"
                       className="button secondary"
-                      onClick={() => void copy(WHATSAPP_PHOTO_MESSAGE, 'photos')}
+                      onClick={() =>
+                        void copy(WHATSAPP_PHOTO_MESSAGE, 'photos')
+                      }
                     >
                       <Clipboard size={15} />
                       {copiedPhotos ? 'Message copied' : 'Copy message'}
@@ -1020,8 +1031,8 @@ export default function TriageFlow() {
                   <p className="tool-help">
                     WhatsApp will use whichever account is currently logged in.
                     To send from Whitfield, use the WhatsApp Business account
-                    linked to {WHITFIELD_BUSINESS_WHATSAPP}. The draft is not sent
-                    automatically.
+                    linked to {WHITFIELD_BUSINESS_WHATSAPP}. The draft is not
+                    sent automatically.
                   </p>
                 </>
               )}

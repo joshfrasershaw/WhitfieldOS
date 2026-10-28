@@ -19,12 +19,18 @@ export function customerWhatsAppNumber(input: string): string | null {
   if (!/^\d+$/.test(digits)) return null
   if (digits.startsWith('00')) digits = digits.slice(2)
   if (digits.startsWith('0')) digits = '44' + digits.slice(1)
-  if (!/^\d{10,15}$/.test(digits) || digits === WHITFIELD_BUSINESS_WHATSAPP) return null
+  if (!/^\d{10,15}$/.test(digits) || digits === WHITFIELD_BUSINESS_WHATSAPP)
+    return null
   return digits
 }
 
 export function whatsappPhotoUrl(customerPhone: string): string | null {
   const number = customerWhatsAppNumber(customerPhone)
   if (!number) return null
-  return 'https://wa.me/' + number + '?text=' + encodeURIComponent(WHATSAPP_PHOTO_MESSAGE)
+  return (
+    'https://wa.me/' +
+    number +
+    '?text=' +
+    encodeURIComponent(WHATSAPP_PHOTO_MESSAGE)
+  )
 }
