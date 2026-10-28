@@ -223,3 +223,8 @@ button:focus-visible {
     white-space: normal;
   }
 }
+
+/* Small sidebar controls must remain readable over the official grey. */
+.sidebar .collapse-button > span {
+  color: #f2f4f4;
+}

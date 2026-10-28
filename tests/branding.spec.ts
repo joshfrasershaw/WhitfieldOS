@@ -6,7 +6,13 @@ test('Whitfield branding uses supplied images and exact company colour tokens', 
   await page.goto('/')
   const logo = page.locator('.brand-image')
   const van = page.locator('.welcome-van')
+  if (testInfo.project.name !== 'desktop') {
+    await page.getByRole('button', { name: 'Open navigation' }).click()
+  }
   await expect(logo).toBeVisible()
+  if (testInfo.project.name !== 'desktop') {
+    await page.getByRole('button', { name: 'Close navigation' }).last().click()
+  }
   await expect(van).toBeVisible()
   expect(
     await logo.evaluate(
