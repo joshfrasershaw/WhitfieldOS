@@ -181,3 +181,55 @@ test('triage reaches a documented diagnostic outcome and never claims a booking'
   await expect(page.getByText('£199 + VAT', { exact: true })).toBeVisible()
   await expect(page.getByText(/NOT A CONFIRMED BOOKING/)).toBeVisible()
 })
+
+
+test('toilet leak asks cistern and leak timing once, then stops on a waste-pipe exclusion', async ({ page }) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Leaks Find the source/ }).click()
+  await page.getByRole('button', { name: /^Toilet$/ }).click()
+  for (const answer of ['SY1 1AA', 'Sample Customer', '07123456789', 'Water behind toilet']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await expect(page.getByText('Is the toilet cistern exposed or concealed?')).toBeVisible()
+  await page.getByRole('button', { name: 'Exposed ceramic cistern' }).click()
+  await page.getByRole('button', { name: 'Waste pipe at back' }).click()
+  await expect(page.getByText('Outside current script scope')).toBeVisible()
+  const brief = page.locator('.triage-brief-preview pre')
+  await expect(brief).toContainText('Is the toilet cistern exposed or concealed? Exposed ceramic cistern')
+  await expect(brief).not.toContainText('Is the toilet exposed or concealed?')
+  await expect(brief).not.toContainText('Is the leak continuous or only when the fitting is used?')
+})
+
+test('photo handover opens customer-addressed WhatsApp draft with the approved business message', async ({ page }) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Leaks Find the source/ }).click()
+  await page.getByRole('button', { name: /^Toilet$/ }).click()
+  for (const answer of ['SY1 1AA', 'Sample Customer', '07123456789', 'Toilet leak']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  const request = page.getByRole('link', { name: 'Request WhatsApp photos' })
+  await expect(request).toHaveAttribute('target', '_blank')
+  const href = await request.getAttribute('href')
+  const destination = new URL(href!)
+  expect(destination.hostname).toBe('wa.me')
+  expect(destination.pathname).toBe('/447123456789')
+  expect(destination.searchParams.get('text')).toContain('Thank you for your call.')
+  expect(destination.searchParams.get('text')).toContain(
+    'Thank you, Josh, Whitfield Plumbing, Heating & Cooling, www.WhitfieldPlumbing.co.uk',
+  )
+  // The tool builds the correct link; clicking is intentionally not needed
+  // because we do not want the test to contact WhatsApp.
+})
+
+test('photo request asks for customer number if none has been supplied', async ({ page }) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Toilets/ }).click()
+  await page.getByRole('button', { name: 'Not flushing or filling' }).click()
+  await page.getByRole('button', { name: 'Request WhatsApp photos' }).click()
+  await expect(page.getByLabel('Customer WhatsApp number')).toBeVisible()
+  await page.getByLabel('Customer WhatsApp number').fill('07123456789')
+  await expect(page.getByRole('link', { name: 'Open WhatsApp draft to customer' }))
+    .toHaveAttribute('href', /wa.me\/447123456789/)
+})

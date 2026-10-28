@@ -27,6 +27,7 @@ import {
   topics,
 } from './triageCatalog'
 import type { GroupId, Topic } from './triageCatalog'
+import { WHATSAPP_PHOTO_MESSAGE, WHITFIELD_BUSINESS_WHATSAPP, whatsappPhotoUrl } from './triageWhatsapp'
 
 type View =
   | 'home'
@@ -107,6 +108,7 @@ function guessOptions(question: string): string[] | undefined {
     return ['Repair', 'Replacement', 'Not sure']
   if (q.includes('one or two holes')) return ['One', 'Two', 'Not sure']
   if (q.includes('rainfall head')) return ['Yes', 'No', 'Not sure']
+  if (q.includes('causing damage to the property')) return ['Yes', 'No', 'Not sure']
   if (
     q.includes('leaking continuously') ||
     q.includes('leak continuous') ||
@@ -127,8 +129,12 @@ function guessOptions(question: string): string[] | undefined {
     return ['Yes', 'No', 'Not sure']
   return undefined
 }
-function makeSteps(topic: Topic): Step[] {
+export function makeSteps(topic: Topic): Step[] {
   const base = [...commonFields]
+  const isToiletLeak =
+    topic.id === 'toilet-leak-main' ||
+    topic.id === 'toilet-leak' ||
+    topic.id === 'concealed-toilet-leak'
   if (
     topic.group === 'boilers' ||
     topic.group === 'leaks' ||
@@ -141,11 +147,7 @@ function makeSteps(topic: Topic): Step[] {
       required: true,
       options: ['No', 'Yes', 'Not sure'],
     })
-  if (
-    topic.id === 'toilet-leak-main' ||
-    topic.id === 'toilet-leak' ||
-    topic.id === 'concealed-toilet-leak'
-  ) {
+  if (isToiletLeak) {
     base.push({
       key: 'toilet-cistern',
       prompt: 'Is the toilet cistern exposed or concealed?',
@@ -203,8 +205,25 @@ function makeSteps(topic: Topic): Step[] {
         'Not sure',
       ],
     })
+  const questions = (topic.questions || [])
+    .filter((prompt) => {
+      if (!isToiletLeak) return true
+      const question = prompt.toLowerCase()
+      // The dedicated clickable cistern/source/timing questions already ask these.
+      return !(
+        (question.includes('exposed') && question.includes('concealed')) ||
+        (question.includes('leak from') && question.includes('waste pipe')) ||
+        (question.includes('continuous') && question.includes('fitting')) ||
+        question.includes('can you see exactly where the water')
+      )
+    })
+    .map((prompt) =>
+      prompt === 'Is it urgent or causing damage?'
+        ? 'Is the leak causing damage to the property?'
+        : prompt,
+    )
   base.push(
-    ...(topic.questions || []).map((prompt, i) => ({
+    ...questions.map((prompt, i) => ({
       key: 'specific-' + i,
       prompt,
       options: guessOptions(prompt),
@@ -381,6 +400,7 @@ export default function TriageFlow() {
   const topic = topicById.get(topicId)
   const steps = useMemo(() => (topic ? makeSteps(topic) : []), [topic])
   const step = steps[stepIndex]
+  const photoLink = whatsappPhotoUrl(answers.phone || '')
   const rawDecision = topic ? getDecision(topic, answers) : null
   const decision =
     handoff && topic
@@ -465,6 +485,16 @@ export default function TriageFlow() {
     }
     const next = { ...answers, [key]: answer }
     setAnswers(next)
+    // Waste/base toilet leaks have an existing exclusion: don't keep asking
+    // unrelated questions after this critical answer.
+    if (
+      key === 'toilet-source' &&
+      (answer === 'Waste pipe at back' || answer === 'Base of toilet')
+    ) {
+      setView('result')
+      setValue('')
+      return
+    }
     if (topic) {
       const reroute = nextTopicForAnswer(key, answer, topic)
       if (reroute) {
@@ -902,13 +932,28 @@ export default function TriageFlow() {
             when a scripted path is incomplete.
           </p>
           <div className="triage-fallback-buttons">
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => setHandoff(handoff === 'photos' ? null : 'photos')}
-            >
-              <Camera size={15} /> Request WhatsApp photos
-            </button>
+            {photoLink ? (
+              <a
+                className="button secondary"
+                href={photoLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => {
+                  setHandoff('photos')
+                  setCopiedPhotos(false)
+                }}
+              >
+                <Camera size={15} /> Request WhatsApp photos
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="button secondary"
+                onClick={() => setHandoff(handoff === 'photos' ? null : 'photos')}
+              >
+                <Camera size={15} /> Request WhatsApp photos
+              </button>
+            )}
             <button
               type="button"
               className="button secondary"
@@ -926,16 +971,59 @@ export default function TriageFlow() {
               </strong>
               <p>{handoff === 'photos' ? PHOTO_SCRIPT : REVIEW_SCRIPT}</p>
               {handoff === 'photos' && (
-                <button
-                  type="button"
-                  className="button secondary"
-                  onClick={() => void copy(PHOTO_SCRIPT, 'photos')}
-                >
-                  <MessageCircle size={15} />
-                  {copiedPhotos
-                    ? 'Request copied'
-                    : 'Copy WhatsApp photo request'}
-                </button>
+                <>
+                  {!photoLink && (
+                    <label className="triage-whatsapp-number">
+                      Customer's WhatsApp number
+                      <input
+                        type="tel"
+                        aria-label="Customer WhatsApp number"
+                        value={answers.phone || ''}
+                        placeholder="e.g. 07..."
+                        onChange={(event) => {
+                          setAnswers((current) => ({
+                            ...current,
+                            phone: event.target.value,
+                          }))
+                          setCopiedPhotos(false)
+                        }}
+                      />
+                      <small>
+                        Enter the customer's number, not Whitfield's business number.
+                      </small>
+                    </label>
+                  )}
+                  <div className="triage-message-preview">
+                    <strong>WhatsApp message to customer</strong>
+                    <p>{WHATSAPP_PHOTO_MESSAGE}</p>
+                  </div>
+                  <div className="triage-handoff-actions">
+                    {photoLink && (
+                      <a
+                        className="button"
+                        href={photoLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageCircle size={15} /> Open WhatsApp draft to customer
+                      </a>
+                    )}
+                    <button
+                      type="button"
+                      className="button secondary"
+                      onClick={() => void copy(WHATSAPP_PHOTO_MESSAGE, 'photos')}
+                    >
+                      <Clipboard size={15} />
+                      {copiedPhotos ? 'Message copied' : 'Copy message'}
+                    </button>
+                  </div>
+                  <p className="tool-help">
+                    WhatsApp will use whichever account is currently logged in.
+                    To send from Whitfield, use the WhatsApp Business account
+                    linked to {WHITFIELD_BUSINESS_WHATSAPP}. The draft is not sent
+                    automatically.
+                  </p>
+                </>
               )}
               {topic && (
                 <button
