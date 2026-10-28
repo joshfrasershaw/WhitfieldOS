@@ -1,26 +1,21 @@
 import { test, expect } from '@playwright/test'
 
-test('warranty hub saves an external manufacturer URL in this browser only', async ({
-  page,
-}) => {
+test('warranty cards open their supplied manufacturer portals', async ({ page }) => {
   await page.goto('/warranty-registration')
-  await expect(page.getByRole('heading', { name: 'Gas Boilers' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Oil Boilers' })).toBeVisible()
-  await expect(
-    page.getByRole('heading', { name: 'Air Conditioning' }),
-  ).toBeVisible()
-  await expect(
-    page.getByRole('heading', { name: 'Hot Water Cylinders' }),
-  ).toBeVisible()
-  await page.getByLabel('Product type').selectOption('oil')
-  await page.getByLabel('Manufacturer').fill('Example Manufacturer')
-  await page
-    .getByLabel('Warranty registration URL')
-    .fill('https://example.com/register')
-  await page.getByRole('button', { name: 'Save link in this browser' }).click()
-  await expect(
-    page.getByRole('link', { name: /Example Manufacturer/ }),
-  ).toHaveAttribute('href', 'https://example.com/register')
+  const bosch = 'https://installer.worcester-bosch.co.uk/jobs/guarantees'
+  const gledhill = 'https://installerconnect.com/app/dashboard'
+  for (const category of ['Gas Boilers', 'Oil Boilers', 'Air Conditioning']) {
+    const card = page.getByRole('link', { name: category + ' — open Worcester Bosch registration' })
+    await expect(card).toHaveAttribute('href', bosch)
+    await expect(card).toHaveAttribute('target', '_blank')
+    await expect(card).toHaveAttribute('rel', 'noopener noreferrer')
+  }
+  const cylinderCard = page.getByRole('link', {
+    name: 'Hot Water Cylinders — open Gledhill Installer Connect registration',
+  })
+  await expect(cylinderCard).toHaveAttribute('href', gledhill)
+  await expect(cylinderCard).toHaveAttribute('target', '_blank')
+  await expect(page.getByRole('heading', { name: 'Product & Warranty Registration' })).toBeVisible()
 })
 
 test('route planner works offline with an uploaded coordinate file', async ({
