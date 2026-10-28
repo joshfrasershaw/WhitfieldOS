@@ -2,6 +2,8 @@ import { useState } from 'react'
 import {
   ArrowDown,
   ArrowUp,
+  Check,
+  ClipboardCopy,
   ExternalLink,
   Map as MapIcon,
   Plus,
@@ -10,13 +12,15 @@ import {
   UploadCloud,
 } from 'lucide-react'
 import {
+  distanceKm,
   googleMapsRouteUrl,
-  normalisePostcode,
   optimiseRoute,
   parsePostcodeCsv,
+  resolvePostcode,
   totalDistance,
 } from '../lib/routing'
 import type { Coordinate, PostcodePoint } from '../lib/routing'
+import { OUTCODE_COUNT } from '../data/outcodes'
 import { PageHeader, Panel } from '../components/ui'
 
 interface Job {
@@ -36,10 +40,12 @@ export default function RoutePlanner() {
   const [bulk, setBulk] = useState('')
   const [ordered, setOrdered] = useState<Coordinate[] | null>(null)
   const [error, setError] = useState('')
+  const [copied, setCopied] = useState(false)
   const [baseline, setBaseline] = useState<number | null>(null)
-  const startPoint = index.get(normalisePostcode(start))
-  const endPoint = index.get(normalisePostcode(end || start))
-  const mileage =
+  const [approximateStops, setApproximateStops] = useState(0)
+  const startPoint = resolvePostcode(start, index)?.point
+  const endPoint = resolvePostcode(end || start, index)?.point
+  const distance =
     ordered && startPoint && endPoint
       ? totalDistance(startPoint, ordered, endPoint)
       : null
@@ -52,59 +58,55 @@ export default function RoutePlanner() {
       setFilename(file.name)
       setOrdered(null)
       setError('')
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to read this CSV.')
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to read this CSV.')
     }
   }
+
   function addJobs(newJobs: Array<{ label: string; postcode: string }>) {
-    setJobs((current) =>
-      current.concat(
-        newJobs
-          .filter((j) => j.postcode.trim())
-          .map((j) => ({
-            id: crypto.randomUUID(),
-            label: j.label.trim() || 'Job',
-            postcode: j.postcode.trim().toUpperCase(),
-          })),
-      ),
-    )
+    setJobs((current) => current.concat(
+      newJobs.filter((job) => job.postcode.trim()).map((job) => ({
+        id: crypto.randomUUID(),
+        label: job.label.trim() || 'Job',
+        postcode: job.postcode.trim().toUpperCase(),
+      })),
+    ))
     setOrdered(null)
+    setCopied(false)
     setError('')
   }
+
   function calculate() {
     setOrdered(null)
+    setCopied(false)
     setError('')
-    if (!index.size) {
-      setError('First import an offline postcode-to-coordinate CSV.')
-      return
-    }
-    const origin = index.get(normalisePostcode(start))
-    const destination = index.get(normalisePostcode(end || start))
+    const origin = resolvePostcode(start, index)?.point
+    const destination = resolvePostcode(end || start, index)?.point
     if (!origin || !destination) {
-      setError('Start or end postcode is missing from your CSV.')
+      setError('Enter a recognised UK start and end postcode. An empty finish means return to the starting postcode.')
       return
     }
     if (!jobs.length) {
       setError('Add at least one job.')
       return
     }
-    const missing = jobs.filter(
-      (job) => !index.has(normalisePostcode(job.postcode)),
-    )
+    const missing = jobs.filter((job) => !resolvePostcode(job.postcode, index))
     if (missing.length) {
-      setError(
-        'Postcode not found in the imported file: ' +
-          missing.map((j) => j.postcode).join(', '),
-      )
+      setError('Unrecognised postcodes: ' + missing.map((job) => job.postcode).join(', ') + '. Check spelling or import more precise coordinates.')
       return
     }
-    const withCoordinates: Coordinate[] = jobs.map((j) => ({
-      ...j,
-      ...index.get(normalisePostcode(j.postcode))!,
+    const points: Coordinate[] = jobs.map((job) => ({
+      ...job,
+      ...resolvePostcode(job.postcode, index)!.point,
     }))
-    setBaseline(totalDistance(origin, withCoordinates, destination))
-    setOrdered(optimiseRoute(origin, destination, withCoordinates))
+    const approximate = [start, end || start, ...jobs.map((job) => job.postcode)]
+      .filter((value) => resolvePostcode(value, index)?.precision === 'district')
+      .length
+    setApproximateStops(approximate)
+    setBaseline(totalDistance(origin, points, destination))
+    setOrdered(optimiseRoute(origin, destination, points))
   }
+
   function move(from: number, direction: number) {
     if (!ordered) return
     const to = from + direction
@@ -112,316 +114,198 @@ export default function RoutePlanner() {
     const next = [...ordered]
     ;[next[from], next[to]] = [next[to], next[from]]
     setOrdered(next)
+    setCopied(false)
   }
+
+  async function copyRun() {
+    if (!ordered) return
+    const summary = [
+      'WHITFIELD ENGINEER RUN — approximate route',
+      'Start: ' + start.toUpperCase(),
+      ...ordered.map((job, i) => (i + 1) + '. ' + job.label + ' — ' + job.postcode),
+      'Finish: ' + (end || start).toUpperCase(),
+      'Verify actual roads, driving times and appointments before dispatch.',
+    ].join('\n')
+    try {
+      await navigator.clipboard.writeText(summary)
+      setCopied(true)
+    } catch {
+      setError('Copy unavailable; use the ordered list displayed above.')
+    }
+  }
+
   return (
     <>
       <PageHeader
         title="Route Planner"
-        description="Plan the day's job order entirely in your browser. No route APIs, subscriptions or location tracking."
+        description="Enter your start, finish and job postcodes. Get an ordered engineer run instantly — no API keys or subscriptions."
         kicker="OPERATIONS"
       />
       <div className="foundation-notice">
         <Route size={15} />
-        <span>Offline proof of concept</span>
+        <span>Local postcode routing ready</span>
         <span className="notice-divider">/</span>
-        <p>
-          Optimises straight-line distances, not real roads or driving times.
-          Nothing is sent to WhitfieldOS servers.
-        </p>
+        <p>Uses approximate postcode district positions, not road distances or driving times. No data is sent to an API.</p>
       </div>
       <div className="tool-grid">
         <div className="tool-stack">
-          <Panel title="1 · Postcode coordinates">
-            <p className="tool-help">
-              Import a CSV with <strong>postcode, latitude, longitude</strong>{' '}
-              columns. The file is read only in this browser session. Obtain an
-              appropriately licensed UK WGS84 postcode dataset separately; no
-              external service is queried.
-            </p>
-            <label className="file-drop">
-              <UploadCloud size={20} />
-              <span>{filename || 'Select postcode CSV'}</span>
-              <input
-                type="file"
-                accept=".csv,text/csv"
-                aria-label="Import postcode CSV"
-                onChange={(event) =>
-                  void loadPostcodes(event.target.files?.[0])
-                }
-              />
-            </label>
-            <p className="tool-meta">
-              {index.size
-                ? index.size.toLocaleString('en-GB') +
-                  ' postcode coordinates loaded'
-                : 'No postcode dataset loaded'}
-            </p>
-          </Panel>
-          <Panel title="2 · Route boundaries">
+          <Panel title="1 · Start and finish">
             <div className="tool-fields two">
               <label>
                 Start postcode
                 <input
+                  aria-label="Start postcode"
                   value={start}
-                  placeholder="e.g. SY..."
-                  onChange={(e) => {
-                    setStart(e.target.value)
-                    setOrdered(null)
-                  }}
+                  placeholder="e.g. SY4 3AB"
+                  onChange={(event) => { setStart(event.target.value); setOrdered(null) }}
                 />
               </label>
               <label>
                 End postcode (optional)
                 <input
+                  aria-label="End postcode (optional)"
                   value={end}
                   placeholder="Same as start"
-                  onChange={(e) => {
-                    setEnd(e.target.value)
-                    setOrdered(null)
-                  }}
+                  onChange={(event) => { setEnd(event.target.value); setOrdered(null) }}
                 />
               </label>
             </div>
-            <p className="tool-help">
-              Start and finish wherever each engineer works. An empty end
-              postcode returns to the start.
-            </p>
+            <p className="tool-help">Choose where the engineer starts and ends. Leave the finish empty for a round trip.</p>
           </Panel>
-          <Panel title="3 · Today's jobs">
-            <form
-              className="tool-fields"
-              onSubmit={(e) => {
-                e.preventDefault()
-                addJobs([{ label, postcode }])
-                setLabel('')
-                setPostcode('')
-              }}
-            >
+          <Panel title="2 · Add jobs">
+            <form className="tool-fields" onSubmit={(event) => {
+              event.preventDefault()
+              addJobs([{ label, postcode }])
+              setLabel('')
+              setPostcode('')
+            }}>
               <label>
                 Job / customer label
-                <input
-                  value={label}
-                  placeholder="e.g. Oil service"
-                  onChange={(e) => setLabel(e.target.value)}
-                />
+                <input aria-label="Job / customer label" value={label} placeholder="e.g. Oil service" onChange={(event) => setLabel(event.target.value)} />
               </label>
               <label>
                 Postcode
-                <input
-                  value={postcode}
-                  required
-                  placeholder="Job postcode"
-                  onChange={(e) => setPostcode(e.target.value)}
-                />
+                <input aria-label="Postcode" value={postcode} required placeholder="Full job postcode" onChange={(event) => setPostcode(event.target.value)} />
               </label>
-              <button type="submit" className="button">
-                <Plus size={15} /> Add job
-              </button>
+              <button type="submit" className="button"><Plus size={15} /> Add job</button>
             </form>
             <label className="tool-block-label">
-              Or paste multiple postcodes (one per line, optional label before
-              comma)
-              <textarea
-                rows={3}
-                value={bulk}
-                onChange={(e) => setBulk(e.target.value)}
-                placeholder={'SY1 1AA\nBoiler service, CW3 0HY'}
-              />
+              Or paste several jobs (one per line, optionally "Description, postcode")
+              <textarea rows={4} value={bulk} onChange={(event) => setBulk(event.target.value)} placeholder={'SY1 1AA\nOil service, CW3 0HY\nST19 9QE'} />
             </label>
-            <button
-              type="button"
-              className="button secondary"
-              onClick={() => {
-                addJobs(
-                  bulk.split(/\r?\n/).map((line) => {
-                    const cells = line.split(',')
-                    return {
-                      label:
-                        cells.length > 1 ? cells.slice(0, -1).join(',') : 'Job',
-                      postcode: cells[cells.length - 1],
-                    }
-                  }),
-                )
-                setBulk('')
-              }}
-            >
-              Add pasted jobs
-            </button>
+            <button type="button" className="button secondary" onClick={() => {
+              addJobs(bulk.split(/\r?\n/).map((line) => {
+                const fields = line.split(',')
+                return {
+                  label: fields.length > 1 ? fields.slice(0, -1).join(',') : 'Job',
+                  postcode: fields[fields.length - 1],
+                }
+              }))
+              setBulk('')
+            }}>Add pasted jobs</button>
             <div className="job-list">
               {jobs.map((job, i) => (
                 <div className="job-list-item" key={job.id}>
                   <span className="job-number">{i + 1}</span>
-                  <div>
-                    <strong>{job.label}</strong>
-                    <small>{job.postcode}</small>
-                  </div>
+                  <div><strong>{job.label}</strong><small>{job.postcode}</small></div>
                   <button
                     type="button"
                     className="icon-button"
                     aria-label={'Remove ' + job.label + ' ' + job.postcode}
-                    onClick={() => {
-                      setJobs(jobs.filter((j) => j.id !== job.id))
-                      setOrdered(null)
-                    }}
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                    onClick={() => { setJobs(jobs.filter((entry) => entry.id !== job.id)); setOrdered(null) }}
+                  ><Trash2 size={15} /></button>
                 </div>
               ))}
             </div>
-            <button
-              type="button"
-              className="button"
-              onClick={calculate}
-              disabled={!jobs.length}
-            >
+            <button type="button" className="button" onClick={calculate} disabled={!jobs.length}>
               <Route size={15} /> Optimise job order
             </button>
-            {error && (
-              <p className="tool-error" role="alert">
-                {error}
+            {error && <p className="tool-error" role="alert">{error}</p>}
+          </Panel>
+          <Panel title="Postcode accuracy · optional">
+            <p className="tool-help">
+              <strong>{OUTCODE_COUNT.toLocaleString('en-GB')} postcode districts included.</strong>{' '}
+              The planner works immediately with UK postcodes. They are resolved to their wider district centres, which can be several kilometres from the actual job.
+            </p>
+            <details className="route-accuracy-options">
+              <summary>Import more precise postcode coordinates</summary>
+              <p className="tool-help">For better positioning, optionally provide a local CSV with <strong>postcode, latitude, longitude</strong> columns. The file stays in this browser session.</p>
+              <label className="file-drop">
+                <UploadCloud size={18} />
+                <span>{filename || 'Choose a postcode CSV'}</span>
+                <input type="file" accept=".csv,text/csv" aria-label="Import postcode CSV" onChange={(event) => void loadPostcodes(event.target.files?.[0])} />
+              </label>
+              <p className="tool-meta">
+                {index.size ? index.size.toLocaleString('en-GB') + ' postcode coordinates loaded' : 'Built-in district coordinates active'}
               </p>
-            )}
+            </details>
           </Panel>
         </div>
         <div className="tool-stack">
-          <Panel title="Optimised route">
+          <Panel title="Suggested engineer run">
             {!ordered ? (
               <div className="tool-empty">
                 <MapIcon size={33} />
-                <h3>Your run, in the best available order</h3>
-                <p>
-                  Load coordinates, set a start point and add your jobs. The
-                  route will appear here.
-                </p>
+                <h3>Your jobs, in a sensible order</h3>
+                <p>Enter your start postcode and jobs, then select Optimise. No postcode upload is needed.</p>
               </div>
             ) : (
               <>
                 <div className="route-summary">
-                  <div>
-                    <span>STRAIGHT-LINE ROUTE</span>
-                    <strong>{mileage?.toFixed(1)} km</strong>
-                  </div>
-                  <div>
-                    <span>STOPS</span>
-                    <strong>{ordered.length}</strong>
-                  </div>
+                  <div><span>STRAIGHT-LINE TOTAL</span><strong>{distance?.toFixed(1)} km</strong></div>
+                  <div><span>JOBS</span><strong>{ordered.length}</strong></div>
                   <div>
                     <span>REDUCTION VS ENTERED ORDER</span>
-                    <strong>
-                      {baseline && mileage !== null
-                        ? Math.max(
-                            0,
-                            (100 * (baseline - mileage)) / baseline,
-                          ).toFixed(0) + '%'
-                        : '—'}
-                    </strong>
+                    <strong>{baseline && distance !== null ? Math.max(0, (100 * (baseline - distance)) / baseline).toFixed(0) + '%' : '—'}</strong>
                   </div>
                 </div>
+                <p className="tool-help" role="status">
+                  {approximateStops
+                    ? approximateStops + ' location lookups use approximate district centres. Verify the actual driving route before dispatch.'
+                    : 'Using imported coordinates; distances still do not account for roads.'}
+                </p>
                 <div className="route-result">
-                  <div className="route-endpoint">
-                    <strong>START</strong>
-                    <span>{start.toUpperCase()}</span>
-                  </div>
+                  <div className="route-endpoint"><strong>START</strong><span>{start.toUpperCase()}</span></div>
                   {ordered.map((job, i) => (
-                    <div key={job.id} className="route-step">
+                    <div className="route-step" key={job.id}>
                       <span className="job-number">{i + 1}</span>
                       <div>
                         <strong>{job.label}</strong>
-                        <small>
-                          {job.postcode} ·{' '}
-                          {distanceFromPrevious(
-                            i,
-                            ordered,
-                            startPoint!,
-                          ).toFixed(1)}{' '}
-                          km straight-line leg
-                        </small>
+                        <small>{job.postcode} · {distanceKm(i ? ordered[i - 1] : startPoint!, job).toFixed(1)} km straight-line leg</small>
                       </div>
                       <div className="reorder-controls">
-                        <button
-                          className="icon-button"
-                          aria-label={'Move ' + job.label + ' up'}
-                          disabled={i === 0}
-                          onClick={() => move(i, -1)}
-                        >
-                          <ArrowUp size={14} />
-                        </button>
-                        <button
-                          className="icon-button"
-                          aria-label={'Move ' + job.label + ' down'}
-                          disabled={i === ordered.length - 1}
-                          onClick={() => move(i, 1)}
-                        >
-                          <ArrowDown size={14} />
-                        </button>
+                        <button className="icon-button" aria-label={'Move ' + job.label + ' up'} disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp size={14} /></button>
+                        <button className="icon-button" aria-label={'Move ' + job.label + ' down'} disabled={i === ordered.length - 1} onClick={() => move(i, 1)}><ArrowDown size={14} /></button>
                       </div>
                     </div>
                   ))}
-                  <div className="route-endpoint">
-                    <strong>FINISH</strong>
-                    <span>{(end || start).toUpperCase()}</span>
-                  </div>
+                  <div className="route-endpoint"><strong>FINISH</strong><span>{(end || start).toUpperCase()}</span></div>
                 </div>
+                <button type="button" className="button secondary" onClick={() => void copyRun()}>
+                  {copied ? <Check size={15} /> : <ClipboardCopy size={15} />}
+                  {copied ? 'Run copied' : 'Copy ordered run'}
+                </button>
                 {ordered.length <= 9 ? (
-                  <a
-                    className="button"
-                    href={googleMapsRouteUrl(start, end || start, ordered)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink size={15} /> Open route in Google Maps
+                  <a className="button" href={googleMapsRouteUrl(start, end || start, ordered)} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink size={15} /> Check driving route in Google Maps
                   </a>
                 ) : (
-                  <p className="tool-help">
-                    The complete order is shown above. For reliable Google Maps
-                    hand-off, split this route into groups of nine stops or
-                    fewer.
-                  </p>
+                  <p className="tool-help">For reliable Google Maps hand-off, split the run into groups of nine stops or fewer. Your complete ordered list remains above.</p>
                 )}
-                <p className="tool-help">
-                  Google Maps calculates its own road directions. It may reorder
-                  or limit waypoints depending on the device; verify before
-                  driving.
-                </p>
+                <p className="tool-help">Google Maps is opened only when you choose the external link. It works out its own road directions and may have waypoint limits.</p>
               </>
             )}
           </Panel>
-          <Panel title="What this planner does — and doesn't">
+          <Panel title="How the optimiser works">
             <div className="tool-explainer">
-              <p>
-                <strong>Does:</strong> solve a fixed-start, fixed-finish
-                multi-stop ordering problem locally with a nearest-neighbour and
-                2-opt algorithm.
-              </p>
-              <p>
-                <strong>Does not:</strong> calculate road travel time, traffic,
-                customer appointment windows, engineers' skills or job
-                durations. These require a richer routing model later.
-              </p>
-              <p>
-                <strong>Data:</strong> job details and imported postcodes are
-                memory-only. Refreshing the page clears them.
-              </p>
+              <p><strong>Pure code:</strong> for up to ten jobs, the shortest straight-line ordering is calculated exactly, with your chosen start and end. Larger runs use a fast routing heuristic.</p>
+              <p><strong>No paid services:</strong> postcode district positions are bundled within WhitfieldOS. The calculations happen locally in your browser, with no mapping API requests.</p>
+              <p><strong>Not a driving-time planner:</strong> road layouts, traffic, appointment windows, bridges and engineer availability are not considered. District coordinates are approximate.</p>
+              <p><strong>Privacy:</strong> entered job details are not uploaded or saved; refreshing the page clears them.</p>
             </div>
           </Panel>
         </div>
       </div>
     </>
   )
-}
-function distanceFromPrevious(
-  index: number,
-  jobs: Coordinate[],
-  start: PostcodePoint,
-) {
-  const prior = index ? jobs[index - 1] : start
-  const current = jobs[index]
-  const radians = (v: number) => (v * Math.PI) / 180
-  const a =
-    Math.sin(radians(current.lat - prior.lat) / 2) ** 2 +
-    Math.cos(radians(prior.lat)) *
-      Math.cos(radians(current.lat)) *
-      Math.sin(radians(current.lon - prior.lon) / 2) ** 2
-  return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(Math.max(0, 1 - a)))
 }
