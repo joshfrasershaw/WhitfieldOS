@@ -1,6 +1,8 @@
 import { test, expect } from '@playwright/test'
 
-test('Whitfield branding uses supplied images and exact company colour tokens', async ({ page }, testInfo) => {
+test('Whitfield branding uses supplied images and exact company colour tokens', async ({
+  page,
+}, testInfo) => {
   await page.goto('/')
   const logo = page.locator('.brand-image')
   const van = page.locator('.welcome-van')
