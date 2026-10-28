@@ -259,3 +259,78 @@ test('photo request asks for customer number if none has been supplied', async (
     page.getByRole('link', { name: 'Open WhatsApp draft to customer' }),
   ).toHaveAttribute('href', /wa.me\/447123456789/)
 })
+
+test('confirmed electric shower fault is assessed, not automatically priced as replacement', async ({
+  page,
+}) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Showers/ }).click()
+  await page.getByRole('button', { name: 'Electric shower', exact: true }).click()
+  for (const answer of [
+    'SY13 2JA',
+    'Example Customer',
+    '07123456789',
+    'Shower flashing hot then cold, not holding temperature',
+  ]) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await expect(page.getByText('What does the customer want us to do?')).toBeVisible()
+  await expect(page.getByText('Is the existing shower electric or mixer?')).toHaveCount(0)
+  await expect(page.getByText('Is it a white box mounted on the wall?')).toHaveCount(0)
+  await expect(page.getByText('Is the shower concealed behind tiles?')).toHaveCount(0)
+  await expect(page.getByText('Is there a large rainfall head?')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Repair a fault / temperature problem' }).click()
+  for (const answer of ['Electric shower brand', 'Around five years', 'Can send photos']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await page.getByRole('button', { name: 'Within a week' }).click()
+  await expect(page.getByRole('heading', { name: 'Shower fault — refer for assessment' })).toBeVisible()
+  await expect(page.locator('.triage-price')).toHaveCount(0)
+  await expect(page.locator('.triage-brief-preview pre')).toContainText(
+    'Repair a fault / temperature problem',
+  )
+})
+
+test('confirmed electric shower like-for-like replacement alone gets an indicative installation price', async ({
+  page,
+}) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Showers/ }).click()
+  await page.getByRole('button', { name: 'Electric shower', exact: true }).click()
+  for (const answer of ['SY1 1AA', 'Example Customer', '07123456789', 'Replace existing unit']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await page.getByRole('button', { name: 'Replace the existing shower' }).click()
+  for (const answer of ['Shower brand', 'Eight years old', 'Yes']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await page.getByRole('button', { name: 'Flexible' }).click()
+  await expect(page.getByRole('heading', { name: 'Electric shower replacement enquiry' })).toBeVisible()
+  await expect(page.locator('.triage-price')).toContainText('£290 + VAT')
+})
+
+test('unknown shower classification uses visual clues and asks for confirmation', async ({
+  page,
+}) => {
+  await page.goto('/triage')
+  await page.getByRole('button', { name: /Showers/ }).click()
+  await page.getByRole('button', { name: 'Not sure what type of shower' }).click()
+  for (const answer of ['SY1 1AA', 'Example Customer', '07123456789', 'Unclear shower type']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await expect(page.getByText('How would the customer describe the shower?')).toBeVisible()
+  await page.getByRole('button', { name: 'White electric-looking box on the wall' }).click()
+  for (const answer of ['SY1 1AA', 'Example Customer', '07123456789', 'Unknown shower']) {
+    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
+    await page.getByRole('button', { name: /Continue/ }).click()
+  }
+  await expect(page.getByText('That appearance is only a clue. Can the customer confirm which type of shower they have?')).toBeVisible()
+  await page.getByRole('button', { name: 'No / still unsure — request photos' }).click()
+  await expect(page.getByRole('heading', { name: 'Request photographs before progressing' })).toBeVisible()
+  await expect(page.locator('.triage-price')).toHaveCount(0)
+})
