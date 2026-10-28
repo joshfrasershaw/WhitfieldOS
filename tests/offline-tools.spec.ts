@@ -178,6 +178,6 @@ test('triage reaches a documented diagnostic outcome and never claims a booking'
     } else break
   }
   await expect(page.getByText('SCRIPT-GUIDED NEXT STEP')).toBeVisible()
-  await expect(page.getByText('£199 + VAT')).toBeVisible()
+  await expect(page.getByText('£199 + VAT', { exact: true })).toBeVisible()
   await expect(page.getByText(/NOT A CONFIRMED BOOKING/)).toBeVisible()
 })
