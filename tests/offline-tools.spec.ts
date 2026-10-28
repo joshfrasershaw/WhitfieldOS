@@ -105,7 +105,6 @@ test('triage paths crosslink toilet leaks, present diagnostics and preserve no-b
   await expect(
     page.getByText('Is the toilet cistern exposed or concealed?'),
   ).toHaveCount(0)
-  await page.getByRole('button', { name: 'No', exact: true }).click()
   for (const [label, value] of [
     ['What is the property postcode?', 'SY1 1AA'],
     ['May I take your name, please?', 'Customer Test'],
@@ -160,7 +159,11 @@ test('triage reaches a documented diagnostic outcome and never claims a booking'
       .locator('.triage-question .triage-options > button')
       .first()
     if (await option.isVisible()) {
-      await option.click()
+      if (await page.getByText('Did Whitfield install this boiler?').isVisible().catch(() => false)) {
+        await page.getByRole('button', { name: 'No', exact: true }).click()
+      } else {
+        await option.click()
+      }
       continue
     }
     const input = page.getByRole('textbox', { name: 'Answer' })
