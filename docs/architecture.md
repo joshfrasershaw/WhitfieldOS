@@ -61,3 +61,7 @@ Do not persist personal data on a shared, unauthenticated static site. Live call
 ## WordPress admin shortcut
 
 Under Growth → SEO & Website, an optional outbound WordPress login shortcut is saved in the current browser's localStorage after the operator supplies the URL. It is restricted to the Whitfield Plumbing domain and the WordPress login path. The actual concealed login URL must **never** be committed to this public repository, included in build assets, or printed in diagnostics. WhitfieldOS has no authentication yet; this shortcut is device-local convenience, not credential storage or secure secrets management. Staff on different devices must configure their own shortcut.
+
+## Corporate branding
+
+Brand-supplied image files are checked into `public/brand` and do not depend on fetching the WordPress installation when WhitfieldOS loads. `src/styles.css` defines Whitfield grey `#565c5d` and accent blue `#71b0ff`; `src/brand.css` supplies the associated responsive logo, sidebar and dashboard imagery styling. The official PNG has baked-in text and artwork, so preserve its aspect ratio and avoid overlaid typography. In collapsed navigation, crop the existing image to the left-hand emblem rather than invent a new logo. The van illustration is decorative branding only, **not** a real-time engineer location. Use these same brand assets throughout future van-related imagery.

@@ -1,0 +1,225 @@
+/* Whitfield Plumbing, Heating & Cooling — company-supplied identity.
+   Primary grey #565c5d · accent blue #71b0ff.
+   Darker action blue is reserved for accessible text on white surfaces. */
+.sidebar {
+  background: #565c5d;
+  border-right-color: #454a4b;
+  color: #f1f4f4;
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 4px;
+  padding: 18px 17px 19px;
+  min-height: 108px;
+  color: #fff;
+}
+.brand-image-frame {
+  display: block;
+  width: 100%;
+  max-width: 216px;
+  overflow: hidden;
+  line-height: 0;
+  border-radius: 2px;
+}
+.brand-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+.brand-image[hidden] {
+  display: none;
+}
+.brand-image-fallback {
+  display: none;
+  font-size: 24px;
+  line-height: 1.25;
+  letter-spacing: -.7px;
+  font-weight: 750;
+}
+.brand-image-missing .brand-image-fallback {
+  display: block;
+}
+.brand-system-label {
+  margin-left: 58px;
+  font-size: 9px;
+  letter-spacing: 1.55px;
+  font-weight: 700;
+  color: #dbeafa;
+}
+.workspace-label {
+  background: #4c5253;
+  border-color: #777f80;
+  color: #fff;
+}
+.workspace-label small,
+.workspace-label > svg {
+  color: #d4dcdd;
+}
+.workspace-avatar {
+  background: #707879;
+  border-color: #8f9899;
+  color: #fff;
+}
+.sidebar nav {
+  scrollbar-color: #879091 transparent;
+}
+.nav-category {
+  color: #e0e5e5;
+}
+.nav-category:hover {
+  color: #fff;
+}
+.nav-item {
+  color: #f1f3f3;
+}
+.nav-item svg {
+  color: #e1e7e8;
+}
+.nav-item:hover {
+  background: #494f50;
+  color: #fff;
+}
+.nav-item.active {
+  background: #414849;
+  color: #fff;
+  box-shadow: inset 3px 0 #71b0ff;
+}
+.nav-item.active svg {
+  color: #a4cbff;
+}
+.nav-dot {
+  background: #71b0ff;
+}
+.sidebar-bottom {
+  border-color: #737c7d;
+}
+.foundation-label {
+  color: #e0e5e5;
+}
+.brand:focus-visible,
+.nav-item:focus-visible,
+.nav-category:focus-visible {
+  outline-color: #a7d1ff;
+}
+.welcome-banner {
+  background: #f0f5fa;
+  border-color: #d7e3ee;
+  border-left: 3px solid #71b0ff;
+  gap: 18px;
+  overflow: hidden;
+}
+.welcome-banner > div:first-child {
+  flex: 1 1 360px;
+  min-width: 0;
+}
+.welcome-banner > a {
+  color: var(--color-action);
+  margin-left: auto;
+  flex: 0 0 auto;
+}
+.welcome-van {
+  display: block;
+  width: 168px;
+  height: auto;
+  max-height: 94px;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+  flex: 0 0 auto;
+}
+.nav-item.active .nav-dot {
+  background: #a4cbff;
+}
+.text-link,
+.panel-foot a,
+.warranty-external,
+.warranty-card-platform,
+.warranty-card-top,
+.search-results > a:hover,
+.warranty-add {
+  color: var(--color-action);
+}
+.kpi:focus-visible,
+.panel:focus-within {
+  outline-color: var(--color-action);
+}
+.button:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline-color: var(--color-action);
+}
+.sidebar a:focus-visible,
+.sidebar button:focus-visible {
+  outline-color: #a7d1ff;
+}
+.sidebar-collapsed .brand {
+  padding: 15px 14px;
+  min-height: 84px;
+  align-items: center;
+}
+.sidebar-collapsed .brand-image-frame {
+  width: 42px;
+  height: 46px;
+  max-width: none;
+}
+.sidebar-collapsed .brand-image {
+  width: 148px;
+  max-width: none;
+  height: auto;
+}
+.sidebar-collapsed .brand-system-label {
+  display: none;
+}
+.sidebar-collapsed .brand-image-fallback {
+  font-size: 11px;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+@media (max-width: 1350px) {
+  .welcome-banner > a {
+    margin-left: 0;
+  }
+}
+@media (max-width: 800px) {
+  .sidebar-collapsed .sidebar.mobile-open .brand {
+    padding: 18px 17px 19px;
+    min-height: 108px;
+    align-items: stretch;
+  }
+  .sidebar-collapsed .sidebar.mobile-open .brand-image-frame {
+    width: 100%;
+    max-width: 216px;
+    height: auto;
+  }
+  .sidebar-collapsed .sidebar.mobile-open .brand-image {
+    width: 100%;
+    max-width: none;
+  }
+  .sidebar-collapsed .sidebar.mobile-open .brand-system-label {
+    display: block;
+  }
+}
+@media (max-width: 700px) {
+  .welcome-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 15px;
+  }
+  .welcome-banner > div:first-child {
+    flex: 1 1 200px;
+  }
+  .welcome-van {
+    order: 2;
+    width: 126px;
+    max-height: 70px;
+  }
+  .welcome-banner > a {
+    order: 3;
+    margin-left: 0;
+    white-space: normal;
+  }
+}

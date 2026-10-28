@@ -8,6 +8,7 @@ import Workspace from './features/Workspace'
 import { modules } from './config/navigation'
 import './styles.css'
 import './feature-styles.css'
+import './brand.css'
 class ErrorBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }

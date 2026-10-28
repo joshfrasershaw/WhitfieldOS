@@ -88,9 +88,7 @@ export default function Dashboard() {
         </div>
       </PageHeader>
       <section className="welcome-banner">
-        <div className="welcome-icon">
-          <ShieldCheck size={23} strokeWidth={1.5} />
-        </div>
+ 
         <div>
           <h2>A clear view starts here.</h2>
           <p>
@@ -101,6 +99,13 @@ export default function Dashboard() {
         <Link to="/integrations">
           Explore integrations <ArrowRight size={16} />
         </Link>
+        <img
+          className="welcome-van"
+          src="/brand/whitfield-van.jpg"
+          alt="Whitfield branded service van illustration"
+          width={250}
+          height={125}
+        />
       </section>
       <div className="section-label">
         <h2>Business at a glance</h2>

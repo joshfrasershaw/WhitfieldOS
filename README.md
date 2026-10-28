@@ -104,3 +104,12 @@ See [delivery roadmap and security gates](docs/delivery-roadmap.md) for the rema
 ### Route planner's bundled data
 
 Postcode district centroids derived from [gibbs/uk-postcodes](https://github.com/gibbs/uk-postcodes) (CC0-1.0). District-level coordinates are deliberately approximate and historically sourced; for job-level positioning an operator can load a WGS84 CSV of exact postcodes. The app does not contact this dataset's author or any geocoding API at runtime. The external Google Maps link is a normal browser directions URL, not an API key or billed service. Validate the actual driving route before allocating work.
+
+## Whitfield brand assets and design tokens
+
+WhitfieldOS uses the official company assets supplied for this project, stored locally in `public/brand/` rather than fetched from WordPress at runtime:
+
+- `/brand/whitfield-logo.png` — official Whitfield Plumbing, Heating & Cooling logo, used in the main navigation.
+- `/brand/whitfield-van.jpg` — official van illustration, used for van-related imagery (currently the dashboard welcome area).
+
+Primary brand grey is **#565c5d**; accent blue is **#71b0ff**. The application keeps a darker derived action-blue for accessible link text on light backgrounds. Theme tokens live in `src/styles.css`; application-specific logo, sidebar and illustration styling lives in `src/brand.css`. Avoid replacing company assets with generic vans or placeholder logos.

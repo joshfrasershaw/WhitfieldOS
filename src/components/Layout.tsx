@@ -119,13 +119,25 @@ export default function Layout() {
           onClick={closeNav}
           aria-label="WhitfieldOS home"
         >
-          <span className="brand-mark">
-            W<span />
+          <span className="brand-image-frame">
+            <img
+              className="brand-image"
+              src="/brand/whitfield-logo.png"
+              alt=""
+              width={329}
+              height={106}
+              onError={(event) => {
+                event.currentTarget.hidden = true
+                event.currentTarget.parentElement?.classList.add(
+                  'brand-image-missing',
+                )
+              }}
+            />
+            <span className="brand-image-fallback" aria-hidden="true">
+              Whitfield
+            </span>
           </span>
-          <span className="brand-name">
-            Whitfield<span>OS</span>
-            <small>PLUMBING · HEATING · COOLING</small>
-          </span>
+          <span className="brand-system-label">OPERATIONS SYSTEM</span>
         </Link>
         <button
           className="mobile-nav-close icon-button"
