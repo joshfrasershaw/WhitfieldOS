@@ -159,7 +159,12 @@ test('triage reaches a documented diagnostic outcome and never claims a booking'
       .locator('.triage-question .triage-options > button')
       .first()
     if (await option.isVisible()) {
-      if (await page.getByText('Did Whitfield install this boiler?').isVisible().catch(() => false)) {
+      if (
+        await page
+          .getByText('Did Whitfield install this boiler?')
+          .isVisible()
+          .catch(() => false)
+      ) {
         await page.getByRole('button', { name: 'No', exact: true }).click()
       } else {
         await option.click()
