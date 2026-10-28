@@ -134,7 +134,7 @@ function guessOptions(question: string): string[] | undefined {
     return ['Yes', 'No', 'Not sure']
   return undefined
 }
-export function makeSteps(topic: Topic, inferredShowerType = ''): Step[] {
+function makeSteps(topic: Topic, inferredShowerType = ''): Step[] {
   const base = [...commonFields]
   const isToiletLeak =
     topic.id === 'toilet-leak-main' ||
@@ -483,9 +483,10 @@ export default function TriageFlow() {
   const [safetyReturn, setSafetyReturn] = useState<View>('home')
   const [diaryConfirmed, setDiaryConfirmed] = useState(false)
   const topic = topicById.get(topicId)
+  const inferredShowerType = answers['shower-inferred'] || ''
   const steps = useMemo(
-    () => (topic ? makeSteps(topic, answers['shower-inferred'] || '') : []),
-    [topic, answers['shower-inferred']],
+    () => (topic ? makeSteps(topic, inferredShowerType) : []),
+    [topic, inferredShowerType],
   )
   const step = steps[stepIndex]
   const photoLink = whatsappPhotoUrl(answers.phone || '')
