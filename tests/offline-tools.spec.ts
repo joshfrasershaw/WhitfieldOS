@@ -325,11 +325,10 @@ test('unknown shower classification uses visual clues and asks for confirmation'
   }
   await expect(page.getByText('How would the customer describe the shower?')).toBeVisible()
   await page.getByRole('button', { name: 'White electric-looking box on the wall' }).click()
-  for (const answer of ['SY1 1AA', 'Example Customer', '07123456789', 'Unknown shower']) {
-    await page.getByRole('textbox', { name: 'Answer' }).fill(answer)
-    await page.getByRole('button', { name: /Continue/ }).click()
-  }
-  await expect(page.getByText('That appearance is only a clue. Can the customer confirm which type of shower they have?')).toBeVisible()
+  // The earlier name, number, postcode and issue should not be asked again.
+  await expect(
+    page.getByText('That appearance is only a clue. Can the customer confirm which type of shower they have?'),
+  ).toBeVisible()
   await page.getByRole('button', { name: 'No / still unsure — request photos' }).click()
   await expect(page.getByRole('heading', { name: 'Request photographs before progressing' })).toBeVisible()
   await expect(page.locator('.triage-price')).toHaveCount(0)
