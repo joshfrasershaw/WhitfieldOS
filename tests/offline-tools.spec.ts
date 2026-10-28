@@ -202,7 +202,9 @@ test('toilet leak asks cistern and leak timing once, then stops on a waste-pipe 
   ).toBeVisible()
   await page.getByRole('button', { name: 'Exposed ceramic cistern' }).click()
   await page.getByRole('button', { name: 'Waste pipe at back' }).click()
-  await expect(page.getByRole('heading', { name: 'Outside current script scope' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', { name: 'Outside current script scope' }),
+  ).toBeVisible()
   const brief = page.locator('.triage-brief-preview pre')
   await expect(brief).toContainText(
     'Is the toilet cistern exposed or concealed? Exposed ceramic cistern',
