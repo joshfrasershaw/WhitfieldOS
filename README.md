@@ -70,13 +70,13 @@ For a Git-connected Worker (the Cloudflare flow with a deploy command):
 - Environment variable: `NODE_VERSION=24`
 - Branch: `main`
 
-`wrangler.jsonc` serves `dist` as static assets with native single-page-application routing. No Worker application code, API credentials in the app, or Cloudflare Vite plugin is needed. Keep the project name `whitfieldos` to match the existing Worker. Cloudflare supplies a free `workers.dev` staging URL.
+`wrangler.jsonc` serves `dist` as static assets with native single-page-application routing. The server-side entry point is `worker/index.ts`. It serves a minimal health endpoint and keeps unimplemented API routes closed. No API credentials are shipped in the browser app, and no Cloudflare Vite plugin is needed. Keep the project name `whitfieldos` to match the existing Worker. Cloudflare supplies a free `workers.dev` staging URL.
 
 Do not add a wildcard `/index.html` redirect: Workers rejects that rule as a redirect loop. The explicit Wrangler configuration also prevents automatic framework setup from rewriting the Vite project during deployment.
 
 ## Cloudflare Pages
 
-This repository is suitable for a static Cloudflare Pages deployment:
+Cloudflare Pages can host the frontend only. Runtime secrets and the server-side API require the Workers deployment described above. For a frontend-only Pages deployment:
 
 - Build command: `npm run build`
 - Output directory: `dist`
@@ -84,7 +84,7 @@ This repository is suitable for a static Cloudflare Pages deployment:
 - Root directory: repository root.
 - Pages provides its built-in SPA fallback because this app has no top-level `404.html`. No `_redirects` file is needed.
 
-No deployment has been performed as part of V1. A production access-control decision is required before introducing real internal business information; V1 intentionally has no authentication.
+A staging deployment has previously been created. Confirm the latest successful Cloudflare deployment when checking which revision is live. A production access-control decision is required before introducing real internal business information; the application currently has no authentication.
 
 ## Scope and limitations
 
@@ -129,3 +129,15 @@ On toilet-leak journeys, the exposed/concealed, leak source and constant/intermi
 ### Shower call routing (October 2026)
 
 Shower pathways now distinguish the **known equipment type** from the **work requested**. Selecting an electric shower does not ask whether it is electric/mixer, a white box, concealed, or rainfall; those are identification cues reserved for the explicit **Not sure what type of shower** route. Electric and rainfall routes instead ask whether the caller needs a fault reviewed, a like-for-like replacement, or a wholly new installation. A report of fluctuating hot/cold water is a **fault**, not proof that a £290 replacement is appropriate: fault outcomes refer for assessment, request photographs and show **no installation price**. The £290 electric and £490 rainfall script figures appear only on a selected replacement route, with suitability/current-price warnings. Generic mixer showers and unknown types receive photos/manager review rather than an invented fixed price. The initial categories are evidence, not medical-style diagnoses; operator should always confirm the actual product before booking.
+
+## Runtime secrets and the ServiceM8 foundation
+
+Cloudflare does not permit runtime secrets on an assets-only Worker. This repository now declares `main: worker/index.ts`, so deploying the latest commit converts the existing project to a Worker with server-side code and static assets.
+
+After that deployment succeeds, open **Workers & Pages → whitfieldos → Settings → Variables and Secrets**, add a **Secret** named `SERVICEM8_API_KEY`, and save/deploy the change. Use the runtime settings, not build-time variables. Never use a `VITE_` prefix, commit a key, place it in frontend settings or paste it into chat. Revoke keys that have been disclosed and store only a replacement securely.
+
+`GET /api/health` returns only a fixed service name and health status. It does not test ServiceM8, expose secret presence/values, authenticate users or return customer records. Unknown `/api` routes return JSON 404 responses. Existing application pages continue to use SPA routing.
+
+**The ServiceM8 connector is not implemented yet.** Saving a secret prepares secure server-side storage; customer sync, reporting, staff authentication and authorised customer endpoints remain subsequent work. No provider requests are made by this runtime.
+
+For local Worker validation, run `npm run dev:worker`; Wrangler serves the compiled frontend and runtime together, normally on port 8787. For frontend-only editing, `npm run dev` still works. `npm test` includes the runtime boundary tests. If local provider secrets are needed in a later phase, use ignored `.dev.vars` files; never commit their contents.

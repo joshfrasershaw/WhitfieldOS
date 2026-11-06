@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "pretest:e2e": "npm run build"
+    "pretest:e2e": "npm run build",
+    "dev:worker": "npm run build && wrangler dev --local"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

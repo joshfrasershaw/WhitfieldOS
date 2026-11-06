@@ -7,3 +7,5 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 .wrangler/
+.dev.vars
+.dev.vars.*

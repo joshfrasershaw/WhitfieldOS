@@ -46,7 +46,7 @@ Global search is a local page directory, not a business-record search or an AI e
 
 ## Deployment
 
-Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. V1 has no Worker application code, paid services, database or server runtime dependency. Wrangler is a development/deployment tool only. Decide authentication and data protection before connecting sensitive business information.
+Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. The Worker now has a minimal server-side entry point (`worker/index.ts`) alongside the static frontend. Wrangler bundles it separately from Vite. It enables runtime secret storage and a public, non-sensitive health endpoint, but contains no provider API calls or customer-data access. There is no database. Decide authentication and data protection before connecting sensitive business information.
 
 ## No-cost offline tools (phase 1.1)
 
@@ -65,3 +65,9 @@ Under Growth → SEO & Website, an optional outbound WordPress login shortcut is
 ## Corporate branding
 
 Brand-supplied image files are checked into `public/brand` and do not depend on fetching the WordPress installation when WhitfieldOS loads. `src/styles.css` defines Whitfield grey `#565c5d` and accent blue `#71b0ff`; `src/brand.css` supplies the associated responsive logo, sidebar and dashboard imagery styling. The official PNG has baked-in text and artwork, so preserve its aspect ratio and avoid overlaid typography. In collapsed navigation, crop the existing image to the left-hand emblem rather than invent a new logo. The van illustration is decorative branding only, **not** a real-time engineer location. Use these same brand assets throughout future van-related imagery.
+
+## Server-side runtime boundary
+
+`wrangler.jsonc` declares the Worker entry point, the `ASSETS` binding and worker-first routing for `/api` and `/api/*`. These routes must never fall back to the frontend document. Other requests retain static asset and SPA routing. The health response is fixed, non-cacheable JSON; writes are rejected and unknown API paths return 404. No permissive CORS headers or generic provider proxy are exposed.
+
+`SERVICEM8_API_KEY` is a runtime secret supplied by Cloudflare, not a browser environment variable. No value is committed or read by the current health handler. Before introducing customer endpoints, implement verified staff authentication and server-side authorisation. Adding the runtime and a secret does not itself enable customer search, sync or reporting.
