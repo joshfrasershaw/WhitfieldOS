@@ -51,7 +51,7 @@ export async function serviceM8Connection(env: ServiceM8Env) {
 
 export async function searchServiceM8Customers(env: ServiceM8Env, input: string) {
   const name = input.trim()
-  if (name.length < 3 || name.length > 100 || /[\u0000-\u001f]/.test(name))
+  if (name.length < 3 || name.length > 100 || Array.from(name).some((character) => character.charCodeAt(0) < 32))
     return { ok: false as const, status: 400, code: 'invalid_customer_name' }
   // Strict exact-match search. No list-all operation or arbitrary API proxy.
   const safeName = name.replace(/'/g, "''")
