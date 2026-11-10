@@ -42,7 +42,7 @@ If Chromium is already installed, use `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/
 - Shared design tokens, responsive white-surface workspaces, consistent empty states and Lucide icons.
 - Dashboard: seven KPI cards, jobs, location preview, management attention, capacity, commercial pipeline, marketing, renewals, activity, quick access and assistant entry point.
 - Purpose-specific diaries, triage flow, stock and record tables, pipeline boards, analytics frames, content calendar, directories and documents workspace.
-- Searchable integration directory for nine planned system categories, all explicitly not connected.
+- Nine-system integration directory. ServiceM8 now supports staff-gated, read-only connection testing and exact-name customer lookup. The other eight integrations are not connected.
 - Global page search (button or Ctrl/Cmd+K), notification/profile dialogs, keyboard navigation, focus treatment, a skip link, not-found page and render error boundary.
 - Cloudflare Workers static-asset configuration, Pages compatibility and CI validation.
 
@@ -70,7 +70,7 @@ For a Git-connected Worker (the Cloudflare flow with a deploy command):
 - Environment variable: `NODE_VERSION=24`
 - Branch: `main`
 
-`wrangler.jsonc` serves `dist` as static assets with native single-page-application routing. The server-side entry point is `worker/index.ts`. It serves a minimal health endpoint and keeps unimplemented API routes closed. No API credentials are shipped in the browser app, and no Cloudflare Vite plugin is needed. Keep the project name `whitfieldos` to match the existing Worker. Cloudflare supplies a free `workers.dev` staging URL.
+`wrangler.jsonc` serves `dist` as static assets with native single-page-application routing. The server-side entry point is `worker/index.ts`. It serves a minimal public health endpoint and read-only ServiceM8 routes protected by verified Cloudflare Access tokens; other API routes are closed. No API credentials are shipped in the browser app, and no Cloudflare Vite plugin is needed. Keep the project name `whitfieldos` to match the existing Worker. Cloudflare supplies a free `workers.dev` staging URL.
 
 Do not add a wildcard `/index.html` redirect: Workers rejects that rule as a redirect loop. The explicit Wrangler configuration also prevents automatic framework setup from rewriting the Vite project during deployment.
 
@@ -88,7 +88,7 @@ A staging deployment has previously been created. Confirm the latest successful 
 
 ## Scope and limitations
 
-Nothing connects to ServiceM8, Xero, Google or any other provider. There are no customer/employee records, financial transactions, generated AI answers, or pretend live alerts. The location view is an abstract labelled preview, not a live map. Dashes mean unavailable data, not zero. Calendar navigation is local and does not schedule jobs. Settings describe planned capabilities rather than offering save buttons that cannot save.
+A staff-gated ServiceM8 connection test and exact-name customer lookup are implemented. Xero, Google and other integrations remain disconnected. There are no customer/employee records, financial transactions, generated AI answers, or pretend live alerts. The location view is an abstract labelled preview, not a live map. Dashes mean unavailable data, not zero. Calendar navigation is local and does not schedule jobs. Settings describe planned capabilities rather than offering save buttons that cannot save.
 
 The displayed date uses Europe/London. Calendar views use the browser's local calendar. Search indexes application pages only. View selections and navigation collapse state are session UI state and are not persisted. Future role metadata is not a security boundary.
 
@@ -116,7 +116,7 @@ Primary brand grey is **#565c5d**; accent blue is **#71b0ff**. The application k
 
 ## Triage & Diagnostics — interactive call handling
 
-The triage workspace is now a click-through, NHS 111-inspired call guide based on **curated** content from 67 Whitfield scripts supplied in October 2026. It covers boiler fuel and work type, leaks, toilets, taps, radiators/heating, showers, servicing, new installations, controls and specialist enquiries. Operators answer questions, follow paths into the corresponding script, capture customer details (session-only), and receive a recommended **next administrative action** (diagnostic, service, fixed-price indication, quote, WhatsApp photo request, George review or decline). Safety questions and a permanent gas-emergency shortcut take priority. Handovers remain available at every step, and a copyable summary can be used for an operator to book in ServiceM8, which remains disconnected.
+The triage workspace is now a click-through, NHS 111-inspired call guide based on **curated** content from 67 Whitfield scripts supplied in October 2026. It covers boiler fuel and work type, leaks, toilets, taps, radiators/heating, showers, servicing, new installations, controls and specialist enquiries. Operators answer questions, follow paths into the corresponding script, capture customer details (session-only), and receive a recommended **next administrative action** (diagnostic, service, fixed-price indication, quote, WhatsApp photo request, George review or decline). Safety questions and a permanent gas-emergency shortcut take priority. Handovers remain available at every step, and a copyable summary can be used for an operator to book in ServiceM8. Triage still has no booking or diary synchronisation.
 
 This is **not** an automatic plumbing diagnosis, booking engine, or payment collector. The uploaded source DOCX/PDF and leads spreadsheets were **not** committed to GitHub. Only selected script-derived summaries/pricing are in the public frontend. Some prices conflict with later updates (gas service £179 in old script versus £249 latest; kitchen tap £290 in old script versus £390 mentioned later). These are explicitly flagged, not treated as verified live quotes. Old appointment dates are not presented as available appointments. No real customer details should be used until WhitfieldOS has authentication and data-protection controls.
 
@@ -136,8 +136,24 @@ Cloudflare does not permit runtime secrets on an assets-only Worker. This reposi
 
 After that deployment succeeds, open **Workers & Pages → whitfieldos → Settings → Variables and Secrets**, add a **Secret** named `SERVICEM8_API_KEY`, and save/deploy the change. Use the runtime settings, not build-time variables. Never use a `VITE_` prefix, commit a key, place it in frontend settings or paste it into chat. Revoke keys that have been disclosed and store only a replacement securely.
 
-`GET /api/health` returns only a fixed service name and health status. It does not test ServiceM8, expose secret presence/values, authenticate users or return customer records. Unknown `/api` routes return JSON 404 responses. Existing application pages continue to use SPA routing.
+`GET /api/health` returns only a fixed service name and health status. It does not test ServiceM8, expose secret presence/values, authenticate users or return customer records. Unrecognised `/api` routes return JSON 404 responses. Read-only ServiceM8 API routes require verified staff sign-in. Existing application pages continue to use SPA routing.
 
-**The ServiceM8 connector is not implemented yet.** Saving a secret prepares secure server-side storage; customer sync, reporting, staff authentication and authorised customer endpoints remain subsequent work. No provider requests are made by this runtime.
+**The first read-only ServiceM8 connector is implemented.** The Worker calls ServiceM8 only after validating a signed staff Cloudflare Access JWT. It has exactly two upstream read-only GET operations: an account check (vendor.json) and an exact-name customer lookup (company.json), capped at 20 customer matches. No customer records are saved. No customer phone matching, job diary, write operations or financial reporting is connected.
 
 For local Worker validation, run `npm run dev:worker`; Wrangler serves the compiled frontend and runtime together, normally on port 8787. For frontend-only editing, `npm run dev` still works. `npm test` includes the runtime boundary tests. If local provider secrets are needed in a later phase, use ignored `.dev.vars` files; never commit their contents.
+
+### Complete the ServiceM8 connection in Cloudflare
+
+**Cloudflare Access is required before customer information can be retrieved.** A secret alone cannot authorise staff.
+
+1. Under Cloudflare Zero Trust → Access controls → Applications, protect the **entire WhitfieldOS Worker** at https://whitfieldos.joshfrasershaw.workers.dev. Restrict access to specifically approved Whitfield staff email addresses; do not permit everyone or the entire internet.
+2. Copy the Access application's **Application Audience (AUD) Tag** and the Access **team domain** (format: https://your-team.cloudflareaccess.com). Confirm the Access policy includes the /api/ routes as well as the application.
+3. In Workers & Pages → whitfieldos → Settings → Variables and Secrets, configure the Worker **runtime** bindings:
+   - `SERVICEM8_API_KEY`: Secret. The ServiceM8 private API key (never reveal or put in source code).
+   - `ACCESS_TEAM_DOMAIN`: Text. The full Access team origin, such as https://your-team.cloudflareaccess.com (no path).
+   - `ACCESS_AUD`: Text. The exact application AUD tag copied in step 2.
+4. Save/deploy the Worker, sign in through Cloudflare Access, and click **Integrations → ServiceM8 → Test ServiceM8 connection**. It reports a verified account only after a successful ServiceM8 server-side request. **Customers → Find customer** performs read-only exact-name searches after the same staff verification.
+
+**Fail-closed behaviour:** no configured Access domain/AUD → 503; no valid signed JWT → 401 (and no ServiceM8 request); no ServiceM8 runtime key → 503; rejected key or provider outage → sanitised error without upstream response bodies. JWT verification checks RS256 signature against Cloudflare's JWKS plus issuer, audience and expiry. Static-assets Workers do not pass ctx.access, so JWT validation is performed explicitly by the server.
+
+ServiceM8's API documentation specifies that private integrations use X-API-Key on server-side calls. Neither that key nor customer search queries are stored in localStorage, used in Vite variables or committed to GitHub. Authenticated search results are transient and not synced to WhitfieldOS. A future role and privacy review is needed before wider CRM features.

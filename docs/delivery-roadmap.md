@@ -62,3 +62,9 @@ Before staff rely on it for quoting or booking:
 The outbound WhatsApp draft is addressed to the customer from the number captured during the same Triage session and contains the agreed company wording. The sender must use the Whitfield business WhatsApp account on their device; click-to-chat cannot automatically select a sender or send a message. If the caller has not supplied a number, a labelled field appears. Telephone numbers and customer-specific links are kept out of source control. This flow uses no paid WhatsApp API. Confirm the customer can receive WhatsApp and review the draft before pressing send.
 
 The leaking-toilet script no longer asks duplicate cistern/source/timing questions. Waste-pipe or base leaks end the routine path early, with a manager/exclusion outcome and the same accessible photo handover.
+
+## ServiceM8 read-only connection — initial implementation
+
+The Worker now contains two staff-gated read-only endpoints: a connection check using ServiceM8 vendor.json and a restricted, exact-name customer lookup using company.json. They use the Cloudflare runtime `SERVICEM8_API_KEY` secret in X-API-Key, never browser code. Cloudflare Access must be configured for the WhitfieldOS application and the Worker must have `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` runtime variables; no unverified requests can reach ServiceM8.
+
+The existing dashboard, dispatch, caller ID, quotation stages and Triage remain disconnected from live ServiceM8 records. Further features need data mapping, staff roles and access policies, proper retention/privacy controls and test coverage. This initial connector is a secure foundation rather than full CRM synchronisation.

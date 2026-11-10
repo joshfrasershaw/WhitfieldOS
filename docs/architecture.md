@@ -32,7 +32,7 @@ Planned sources:
 | WordPress                 | Content and website workflows                         |
 | WhatsApp / communications | Conversation context                                  |
 
-Introduce typed domain adapters and feature-level data hooks behind these views. Provider authentication, token storage, webhooks, normalisation and authorisation must live in a secure server boundary selected in a future phase. Never ship provider secrets in Vite environment variables or browser bundles. The current directory is informational and performs no authentication or connection attempts.
+Introduce typed domain adapters and feature-level data hooks behind these views. Provider authentication, token storage, webhooks, normalisation and authorisation must live in a secure server boundary selected in a future phase. Never ship provider secrets in Vite environment variables or browser bundles. The directory now includes read-only ServiceM8 connection testing and exact-name customer lookup, protected by Cloudflare Access signed JWTs. Other integrations remain informational.
 
 ## Roles and authentication
 
@@ -46,7 +46,7 @@ Global search is a local page directory, not a business-record search or an AI e
 
 ## Deployment
 
-Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. The Worker now has a minimal server-side entry point (`worker/index.ts`) alongside the static frontend. Wrangler bundles it separately from Vite. It enables runtime secret storage and a public, non-sensitive health endpoint, but contains no provider API calls or customer-data access. There is no database. Decide authentication and data protection before connecting sensitive business information.
+Cloudflare Pages can serve `dist` as static assets. Pages uses its built-in SPA fallback; there is no top-level `404.html`. A Git-connected Worker can also serve the same static output using `wrangler.jsonc`, whose `assets.not_found_handling` enables native SPA routing. No wildcard redirect is shipped because Workers rejects it as a redirect loop. The Worker has a server-side entry point (`worker/index.ts`) separate from the static frontend. Its public health endpoint is non-sensitive. Two staff-gated read-only ServiceM8 API routes can validate connectivity and return limited exact-name customer matches. No database, provider write API or automatic sync is implemented. Deploy an Access policy protecting the whole app before using real customer data.
 
 ## No-cost offline tools (phase 1.1)
 
@@ -70,4 +70,4 @@ Brand-supplied image files are checked into `public/brand` and do not depend on 
 
 `wrangler.jsonc` declares the Worker entry point, the `ASSETS` binding and worker-first routing for `/api` and `/api/*`. These routes must never fall back to the frontend document. Other requests retain static asset and SPA routing. The health response is fixed, non-cacheable JSON; writes are rejected and unknown API paths return 404. No permissive CORS headers or generic provider proxy are exposed.
 
-`SERVICEM8_API_KEY` is a runtime secret supplied by Cloudflare, not a browser environment variable. No value is committed or read by the current health handler. Before introducing customer endpoints, implement verified staff authentication and server-side authorisation. Adding the runtime and a secret does not itself enable customer search, sync or reporting.
+`SERVICEM8_API_KEY` is a runtime Cloudflare secret, not a browser variable. The public health endpoint never reads it. `/api/servicem8/status` and `/api/servicem8/customers?name=` are the only provider routes; they make read-only GET calls to ServiceM8 vendor/company endpoints, respectively. Both require verified Cloudflare Access staff JWTs (RS256 signature/JWKS, audience, issuer, expiry and email) and a configured team domain and audience. Missing Access configuration or identity blocks every upstream call. Responses are limited, sanitised and non-cacheable; upstream error bodies and keys never reach the browser. The whole site should be placed behind a staff-only Access policy before operational use.
