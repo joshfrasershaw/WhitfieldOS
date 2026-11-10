@@ -133,7 +133,8 @@ function IntegrationWorkspace() {
                     {i.description.charAt(0).toLowerCase() +
                       i.description.slice(1)}{' '}
                     Connection setup, permissions and sync controls will be
-                    introduced in a later release. No data is currently accessed.
+                    introduced in a later release. No data is currently
+                    accessed.
                   </p>
                 </details>
               )}
@@ -625,8 +626,11 @@ export default function Workspace({ module }: { module: Module }) {
   if (module.id === 'customers') {
     return (
       <>
-        <PageHeader title="Customers" kicker="CUSTOMERS & COMMERCIAL"
-          description="Find an existing customer in ServiceM8 by exact name. Read-only and restricted to signed-in staff." />
+        <PageHeader
+          title="Customers"
+          kicker="CUSTOMERS & COMMERCIAL"
+          description="Find an existing customer in ServiceM8 by exact name. Read-only and restricted to signed-in staff."
+        />
         <Panel title="ServiceM8 customer lookup">
           <ServiceM8Connection showSearch />
         </Panel>

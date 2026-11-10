@@ -1,5 +1,12 @@
 import { useState } from 'react'
-import { CheckCircle2, DatabaseZap, ExternalLink, LockKeyhole, Search, ShieldAlert } from 'lucide-react'
+import {
+  CheckCircle2,
+  DatabaseZap,
+  ExternalLink,
+  LockKeyhole,
+  Search,
+  ShieldAlert,
+} from 'lucide-react'
 
 type Status = 'idle' | 'checking' | 'connected' | 'error'
 type Client = { uuid: string; name: string; address: string }
@@ -35,7 +42,9 @@ function explanation(error: ErrorCode | string): string {
   }
 }
 
-async function readResponse(response: Response): Promise<Record<string, unknown>> {
+async function readResponse(
+  response: Response,
+): Promise<Record<string, unknown>> {
   const value: unknown = await response.json()
   if (value && typeof value === 'object' && !Array.isArray(value))
     return value as Record<string, unknown>
@@ -43,7 +52,11 @@ async function readResponse(response: Response): Promise<Record<string, unknown>
 }
 
 /** Read-only; never sends API keys from the browser. */
-export default function ServiceM8Connection({ showSearch = false }: { showSearch?: boolean }) {
+export default function ServiceM8Connection({
+  showSearch = false,
+}: {
+  showSearch?: boolean
+}) {
   const [status, setStatus] = useState<Status>('idle')
   const [account, setAccount] = useState('')
   const [message, setMessage] = useState('')
@@ -66,14 +79,22 @@ export default function ServiceM8Connection({ showSearch = false }: { showSearch
       const result = await readResponse(response)
       if (!response.ok || result.connected !== true) {
         setStatus('error')
-        setMessage(explanation(typeof result.error === 'string' ? result.error : 'unknown'))
+        setMessage(
+          explanation(
+            typeof result.error === 'string' ? result.error : 'unknown',
+          ),
+        )
         return
       }
       setStatus('connected')
-      setAccount(typeof result.account === 'string' ? result.account : 'ServiceM8')
+      setAccount(
+        typeof result.account === 'string' ? result.account : 'ServiceM8',
+      )
     } catch {
       setStatus('error')
-      setMessage('Connection test unavailable. Check that WhitfieldOS is deployed as a Worker (not just a static website).')
+      setMessage(
+        'Connection test unavailable. Check that WhitfieldOS is deployed as a Worker (not just a static website).',
+      )
     }
   }
 
@@ -89,24 +110,38 @@ export default function ServiceM8Connection({ showSearch = false }: { showSearch
     setSearchMessage('')
     setClients(null)
     try {
-      const response = await fetch('/api/servicem8/customers?' + new URLSearchParams({ name: term }), {
-        method: 'GET',
-        credentials: 'same-origin',
-        cache: 'no-store',
-      })
+      const response = await fetch(
+        '/api/servicem8/customers?' + new URLSearchParams({ name: term }),
+        {
+          method: 'GET',
+          credentials: 'same-origin',
+          cache: 'no-store',
+        },
+      )
       const result = await readResponse(response)
       if (!response.ok || !Array.isArray(result.matches)) {
-        setSearchMessage(explanation(typeof result.error === 'string' ? result.error : 'unknown'))
+        setSearchMessage(
+          explanation(
+            typeof result.error === 'string' ? result.error : 'unknown',
+          ),
+        )
         return
       }
       const matches: Client[] = result.matches
-        .filter((item): item is Client => !!item && typeof item === 'object' &&
-          typeof item.uuid === 'string' && typeof item.name === 'string' &&
-          typeof item.address === 'string')
+        .filter(
+          (item): item is Client =>
+            !!item &&
+            typeof item === 'object' &&
+            typeof item.uuid === 'string' &&
+            typeof item.name === 'string' &&
+            typeof item.address === 'string',
+        )
         .slice(0, 20)
       setClients(matches)
     } catch {
-      setSearchMessage('Could not search ServiceM8. The customer data has not been saved.')
+      setSearchMessage(
+        'Could not search ServiceM8. The customer data has not been saved.',
+      )
     } finally {
       setSearching(false)
     }
@@ -115,70 +150,132 @@ export default function ServiceM8Connection({ showSearch = false }: { showSearch
   return (
     <div className="sm8-connection">
       <div className="sm8-status">
-        {status === 'connected'
-          ? <CheckCircle2 size={19} color="#286b45" />
-          : status === 'error'
-            ? <ShieldAlert size={19} color="#94552a" />
-            : <DatabaseZap size={19} />}
+        {status === 'connected' ? (
+          <CheckCircle2 size={19} color="#286b45" />
+        ) : status === 'error' ? (
+          <ShieldAlert size={19} color="#94552a" />
+        ) : (
+          <DatabaseZap size={19} />
+        )}
         <div>
           <strong>
-            {status === 'connected' ? 'Connected to ServiceM8' :
-              status === 'checking' ? 'Checking ServiceM8…' :
-                status === 'error' ? 'Connection not verified' : 'Connection not checked'}
+            {status === 'connected'
+              ? 'Connected to ServiceM8'
+              : status === 'checking'
+                ? 'Checking ServiceM8…'
+                : status === 'error'
+                  ? 'Connection not verified'
+                  : 'Connection not checked'}
           </strong>
-          <p>{status === 'connected' ? account :
-            'A secure, read-only connection using a Cloudflare Worker runtime secret.'}</p>
+          <p>
+            {status === 'connected'
+              ? account
+              : 'A secure, read-only connection using a Cloudflare Worker runtime secret.'}
+          </p>
         </div>
       </div>
-      <button type="button" className="button" disabled={status === 'checking'}
-        onClick={() => void checkConnection()}>
+      <button
+        type="button"
+        className="button"
+        disabled={status === 'checking'}
+        onClick={() => void checkConnection()}
+      >
         <DatabaseZap size={15} />
         {status === 'checking' ? 'Checking…' : 'Test ServiceM8 connection'}
       </button>
-      {message && <p className="tool-error" role="alert">{message}</p>}
-      {status === 'connected' && (
-        <p className="tool-help">Account verified through ServiceM8. This does not mean the diary,
-          job KPIs or automatic caller matching have been connected.</p>
+      {message && (
+        <p className="tool-error" role="alert">
+          {message}
+        </p>
       )}
-      {showSearch && <>
-        <div className="sm8-section">
-          <h3>Find a customer</h3>
-          <p className="tool-help">Exact customer name only. WhitfieldOS does not create,
-            edit or store customers. Results are visible only after verified staff sign-in.</p>
-          <form className="sm8-search" onSubmit={(event) => void searchCustomers(event)}>
-            <label>
-              Customer name
-              <input aria-label="ServiceM8 customer name" autoComplete="off"
-                value={name} maxLength={100} placeholder="Exact name in ServiceM8"
-                disabled={status !== 'connected'}
-                onChange={(event) => { setName(event.target.value); setClients(null) }} />
-            </label>
-            <button type="submit" className="button secondary"
-              disabled={status !== 'connected' || searching || name.trim().length < 3}>
-              <Search size={15} /> {searching ? 'Searching…' : 'Find customer'}
-            </button>
-          </form>
-          {status !== 'connected' && (
-            <p className="tool-meta"><LockKeyhole size={14} /> Check the secure connection first.</p>
-          )}
-          {searchMessage && <p className="tool-error" role="alert">{searchMessage}</p>}
-          {clients && (clients.length ? (
-            <div className="sm8-results" aria-label="ServiceM8 customer matches">
-              {clients.map((client) => (
-                <div key={client.uuid} className="sm8-result">
-                  <strong>{client.name}</strong>
-                  <span>{client.address || 'Address not supplied'}</span>
+      {status === 'connected' && (
+        <p className="tool-help">
+          Account verified through ServiceM8. This does not mean the diary, job
+          KPIs or automatic caller matching have been connected.
+        </p>
+      )}
+      {showSearch && (
+        <>
+          <div className="sm8-section">
+            <h3>Find a customer</h3>
+            <p className="tool-help">
+              Exact customer name only. WhitfieldOS does not create, edit or
+              store customers. Results are visible only after verified staff
+              sign-in.
+            </p>
+            <form
+              className="sm8-search"
+              onSubmit={(event) => void searchCustomers(event)}
+            >
+              <label>
+                Customer name
+                <input
+                  aria-label="ServiceM8 customer name"
+                  autoComplete="off"
+                  value={name}
+                  maxLength={100}
+                  placeholder="Exact name in ServiceM8"
+                  disabled={status !== 'connected'}
+                  onChange={(event) => {
+                    setName(event.target.value)
+                    setClients(null)
+                  }}
+                />
+              </label>
+              <button
+                type="submit"
+                className="button secondary"
+                disabled={
+                  status !== 'connected' || searching || name.trim().length < 3
+                }
+              >
+                <Search size={15} />{' '}
+                {searching ? 'Searching…' : 'Find customer'}
+              </button>
+            </form>
+            {status !== 'connected' && (
+              <p className="tool-meta">
+                <LockKeyhole size={14} /> Check the secure connection first.
+              </p>
+            )}
+            {searchMessage && (
+              <p className="tool-error" role="alert">
+                {searchMessage}
+              </p>
+            )}
+            {clients &&
+              (clients.length ? (
+                <div
+                  className="sm8-results"
+                  aria-label="ServiceM8 customer matches"
+                >
+                  {clients.map((client) => (
+                    <div key={client.uuid} className="sm8-result">
+                      <strong>{client.name}</strong>
+                      <span>{client.address || 'Address not supplied'}</span>
+                    </div>
+                  ))}
+                  <p className="tool-help">
+                    Showing up to 20 exact-name matches. Jobs and contact
+                    histories are not included in this first read-only release.
+                  </p>
                 </div>
+              ) : (
+                <p className="tool-meta">
+                  No matching customers were returned by ServiceM8.
+                </p>
               ))}
-              <p className="tool-help">Showing up to 20 exact-name matches. Jobs and contact
-                histories are not included in this first read-only release.</p>
-            </div>
-          ) : <p className="tool-meta">No matching customers were returned by ServiceM8.</p>)}
-        </div>
-      </>}
+          </div>
+        </>
+      )}
       <p className="sm8-footer">
-        <LockKeyhole size={13} /> The API key remains on Cloudflare. No public API proxy.
-        <a href="https://go.servicem8.com/" target="_blank" rel="noopener noreferrer">
+        <LockKeyhole size={13} /> The API key remains on Cloudflare. No public
+        API proxy.
+        <a
+          href="https://go.servicem8.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           Open ServiceM8 <ExternalLink size={12} />
         </a>
       </p>

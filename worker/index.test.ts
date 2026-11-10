@@ -95,12 +95,21 @@ describe('Worker runtime boundary', () => {
   it('rejects write methods and unrecognised API routes', async () => {
     const env = environment()
     const result = await worker.fetch(
-      new Request('https://example.test/api/servicem8/status', { method: 'POST' }),
+      new Request('https://example.test/api/servicem8/status', {
+        method: 'POST',
+      }),
       env,
     )
     expect(result.status).toBe(405)
     expect(result.headers.get('Allow')).toBe('GET')
-    expect((await worker.fetch(new Request('https://example.test/api/servicem8/secret'),env)).status).toBe(404)
+    expect(
+      (
+        await worker.fetch(
+          new Request('https://example.test/api/servicem8/secret'),
+          env,
+        )
+      ).status,
+    ).toBe(404)
   })
 
   it('preserves application asset routing for departmental and other non-API paths', async () => {

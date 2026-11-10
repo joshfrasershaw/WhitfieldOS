@@ -9,7 +9,11 @@ export interface WorkerEnv extends AccessEnv {
   SERVICEM8_API_KEY?: string
 }
 
-function json(body: Record<string, unknown>, status = 200, headers: Record<string,string> = {}) {
+function json(
+  body: Record<string, unknown>,
+  status = 200,
+  headers: Record<string, string> = {},
+) {
   return Response.json(body, {
     status,
     headers: {
@@ -27,31 +31,42 @@ export default {
     const { pathname } = url
     if (pathname === '/api/health') {
       if (request.method !== 'GET' && request.method !== 'HEAD') {
-        return json({ error: 'Method not allowed' }, 405, { Allow: 'GET, HEAD' })
+        return json({ error: 'Method not allowed' }, 405, {
+          Allow: 'GET, HEAD',
+        })
       }
       const response = json({ status: 'ok', service: 'WhitfieldOS API' })
       return request.method === 'HEAD'
-        ? new Response(null, { status: response.status, headers: response.headers })
+        ? new Response(null, {
+            status: response.status,
+            headers: response.headers,
+          })
         : response
     }
 
-    if (pathname === '/api/servicem8/status' ||
-        pathname === '/api/servicem8/customers') {
+    if (
+      pathname === '/api/servicem8/status' ||
+      pathname === '/api/servicem8/customers'
+    ) {
       if (request.method !== 'GET')
         return json({ error: 'Method not allowed' }, 405, { Allow: 'GET' })
       // Never contact ServiceM8 unless BOTH verified staff identity and
       // a configured Access audience are present.
       if (!accessConfigured(env))
         return json({ error: 'staff_access_not_configured' }, 503)
-      if (!await verifyStaffAccess(request, env))
+      if (!(await verifyStaffAccess(request, env)))
         return json({ error: 'staff_sign_in_required' }, 401)
       if (pathname === '/api/servicem8/status') {
         const result = await serviceM8Connection(env)
-        return result.ok ? json(result.data) : json({ error: result.code }, result.status)
+        return result.ok
+          ? json(result.data)
+          : json({ error: result.code }, result.status)
       }
       const name = url.searchParams.get('name') || ''
       const result = await searchServiceM8Customers(env, name)
-      return result.ok ? json(result.data) : json({ error: result.code }, result.status)
+      return result.ok
+        ? json(result.data)
+        : json({ error: result.code }, result.status)
     }
 
     if (pathname === '/api' || pathname.startsWith('/api/')) {
