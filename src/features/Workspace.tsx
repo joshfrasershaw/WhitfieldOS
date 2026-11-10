@@ -24,6 +24,7 @@ import WarrantyRegistration from './WarrantyRegistration'
 import CallDesk from './CallDesk'
 import TriageFlow from './TriageFlow'
 import WordPressShortcut from './WordPressShortcut'
+import ServiceM8Connection from './ServiceM8Connection'
 import { PageHeader, Panel, Empty, ConnectionNote } from '../components/ui'
 const integrations = [
   {
@@ -81,8 +82,8 @@ function IntegrationWorkspace() {
         <div>
           <h2>Your systems. Working together.</h2>
           <p>
-            Integration architecture is planned. Live connections are not
-            available in V1, and no credentials are required.
+            Test the secured ServiceM8 connection below. Other integrations are
+            still in development.
           </p>
         </div>
       </div>
@@ -111,25 +112,31 @@ function IntegrationWorkspace() {
                       ? 'xero'
                       : i.name.split(' ')[0].slice(0, 2)}
                 </span>
-                <span className="connection-badge">
-                  <span className="hollow-dot" /> Not connected
-                </span>
+                {i.name !== 'ServiceM8' && (
+                  <span className="connection-badge">
+                    <span className="hollow-dot" /> Not connected
+                  </span>
+                )}
               </div>
               <p className="eyebrow">{i.category}</p>
               <h2>{i.name}</h2>
               <p>{i.description}</p>
-              <details>
-                <summary>
-                  Planned connection <ArrowUpRight size={14} />
-                </summary>
-                <p>
-                  This future integration will supply{' '}
-                  {i.description.charAt(0).toLowerCase() +
-                    i.description.slice(1)}{' '}
-                  Connection setup, permissions and sync controls will be
-                  introduced in a later release. No data is currently accessed.
-                </p>
-              </details>
+              {i.name === 'ServiceM8' ? (
+                <ServiceM8Connection />
+              ) : (
+                <details>
+                  <summary>
+                    Planned connection <ArrowUpRight size={14} />
+                  </summary>
+                  <p>
+                    This future integration will supply{' '}
+                    {i.description.charAt(0).toLowerCase() +
+                      i.description.slice(1)}{' '}
+                    Connection setup, permissions and sync controls will be
+                    introduced in a later release. No data is currently accessed.
+                  </p>
+                </details>
+              )}
             </section>
           ))}
       </div>
@@ -615,6 +622,17 @@ export default function Workspace({ module }: { module: Module }) {
   if (module.type === 'registration') return <WarrantyRegistration />
   if (module.type === 'calls') return <CallDesk />
   if (module.type === 'triage') return <TriageFlow />
+  if (module.id === 'customers') {
+    return (
+      <>
+        <PageHeader title="Customers" kicker="CUSTOMERS & COMMERCIAL"
+          description="Find an existing customer in ServiceM8 by exact name. Read-only and restricted to signed-in staff." />
+        <Panel title="ServiceM8 customer lookup">
+          <ServiceM8Connection showSearch />
+        </Panel>
+      </>
+    )
+  }
   return (
     <>
       <PageHeader
@@ -633,7 +651,9 @@ export default function Workspace({ module }: { module: Module }) {
         <span>Foundation workspace</span>
         <span className="notice-divider">/</span>
         <p>
-          Ready for what comes next. Live functionality is not connected in V1.
+          {module.type === 'integrations'
+            ? 'ServiceM8 has a secure connection test. Other integrations are not yet connected.'
+            : 'Ready for what comes next. Live functionality is not connected in V1.'}
         </p>
       </div>
       {module.id === 'seo' && <WordPressShortcut />}
